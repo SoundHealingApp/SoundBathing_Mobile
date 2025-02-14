@@ -11,7 +11,10 @@ import SwiftUI
 struct SoundBathingAppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BirthdateEnteringView()
+//            RegisterView()
+//            NameEnteringView()
+                .withRouter()
         }
     }
 }

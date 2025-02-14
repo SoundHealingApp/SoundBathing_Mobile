@@ -1,0 +1,55 @@
+//
+//  UserDefaultsManager.swift
+//  SoundBathingApp
+//
+//  Created by Ирина Печик on 13.02.2025.
+//
+
+import Foundation
+
+class UserDefaultsManager {
+    static let shared = UserDefaultsManager()
+    
+    static let userNameKey: String = "userName"
+    static let userSurnameKey: String = "userSurname"
+    
+    static let birthDateKey: String = "userBirthDate"
+    // MARK: - User info
+    
+    // MARK: Save and get to/from userDefaults user name.
+    func saveUserName(name: String) {
+        UserDefaults.standard.set(name, forKey: UserDefaultsManager.userNameKey)
+    }
+    
+    func getUserName() -> String? {
+        if let name = UserDefaults.standard.string(forKey: UserDefaultsManager.userNameKey) {
+            return name
+        }
+        return nil
+    }
+    
+    // MARK: Save and get to/from userDefaults user name.
+    func saveUserSurname(surname: String) {
+        UserDefaults.standard.set(surname, forKey: UserDefaultsManager.userSurnameKey)
+    }
+    
+    func getUserSurname() -> String? {
+        if let surname = UserDefaults.standard.string(forKey: UserDefaultsManager.userSurnameKey) {
+            return surname
+        }
+        return nil
+    }
+    
+    // MARK: Save and get to/from userDefaults user birth date.
+    func saveUserBirthDate(birthDate: String) {
+        UserDefaults.standard.set(birthDate, forKey: UserDefaultsManager.birthDateKey)
+    }
+    
+    func getUserBirthDate() -> String? {
+        if let birthDate = UserDefaults.standard.string(forKey: UserDefaultsManager.birthDateKey) {
+            return birthDate
+        }
+        return nil
+    }
+
+}
