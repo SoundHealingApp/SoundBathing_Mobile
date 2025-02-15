@@ -27,19 +27,6 @@ class KeyChainManager {
         KeychainWrapper.standard.removeObject(forKey: jwtTokenKey)
     }
     
-    // MARK: - UserId
-    func saveUserId(_ userId: String) {
-        KeychainWrapper.standard.set(userId, forKey: userIdKey)
-    }
-    
-    func getUserId() -> String? {
-        return KeychainWrapper.standard.string(forKey: userIdKey)
-    }
-    
-    func deleteUserId() {
-        KeychainWrapper.standard.removeObject(forKey: userIdKey)
-    }
-    
     // MARK: - PasswordHash
     func saveUserPasswordHash(_ password: String) {
         KeychainWrapper.standard.set(password, forKey: userPasswordHash)
