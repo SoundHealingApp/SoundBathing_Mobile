@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @StateObject var viewModel = RegisterViewModel()
+    @StateObject var viewModel = CheckUserExistenceViewModel()
     
     @State private var email: String = ""
     @State private var password: String = ""
@@ -86,11 +86,11 @@ struct RegisterView: View {
                 
                 NextButtonView(isDisabled: isNextButtonDisabled) {
                     Task {
-                        await viewModel.sendRequest(email: email, password: password)
+                        await viewModel.checkUserExistence(email: email, password: password)
                     }
                 }
             }
-            .onChange(of: viewModel.isRegistrationSuccessful) { _, newValue in
+            .onChange(of: viewModel.isCheckedSuccessful) { _, newValue in
                 if newValue {
                     router.navigateToNameEnteringView()
                 }

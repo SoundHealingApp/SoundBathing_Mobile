@@ -16,68 +16,81 @@ class NetworkManager: NSObject, URLSessionDelegate {
         endPoint: String,
         method: HttpMethods,
         body: Data? = nil,
-        completion: @escaping (Result<T, NetworkError>) -> Void) {
-        
+        queryParameters: [String: String]? = nil) async -> Result<T, NetworkError>
+    {
         guard let url = URL(string: "\(host)\(endPoint)") else {
-            completion(.failure(.invalidUrl))
-            return
+            return .failure(.invalidUrl)
         }
         
-        let request = createRequest(url: url, method: method, body: body)
+        let request = createRequest(url: url, method: method, body: body, queryParameters: queryParameters)
+            
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         
-        session.dataTask(with: request) { data, response, error in
-            // Проверка на ошибку сети
-            if let error = error {
-                completion(.failure(.networkError(error.localizedDescription)))
-                return
-            }
+        do {
+            let (data, response) = try await session.data(for: request)
             
             // Проверка на валидный HTTP-ответ
             guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(.serverError("Invalid response")))
-                return
+                return .failure(.serverError("Invalid response"))
             }
-            
-            print(httpResponse.statusCode)
             
             // Обработка статус кода
             if (200...299).contains(httpResponse.statusCode) {
                 if T.self == EmptyResponse.self {
                     // Если ожидаемый тип — Void, просто возвращаем успех
-                    completion(.success(EmptyResponse() as! T))
+                    return .success(EmptyResponse() as! T)
                 }
-                else if let data = data, !data.isEmpty {
+                else if !data.isEmpty {
                     // Если есть данные, пытаемся их декодировать
                     do {
                         let decodedData = try JSONDecoder().decode(T.self, from: data)
-                        completion(.success(decodedData))
+                        return .success(decodedData)
                     } catch {
-                        completion(.failure(.decodableError))
+                        return .failure(.decodableError)
                     }
                 } else {
                     // Если данных нет, но тип не Void, возвращаем ошибку
-                    completion(.failure(.nullData))
+                    return .failure(.nullData)
                 }
             } else {
                 // Обработка ошибки
-                if let data = data, !data.isEmpty {
+                if !data.isEmpty {
                     if let errorResponse = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
-                        completion(.failure(.serverError(errorResponse.detail)))
+                        return .failure(.serverError(errorResponse.detail))
                     } else {
-                        completion(.failure(.serverError("Something went wrong")))
+                        return .failure(.serverError("Something went wrong"))
                     }
                 } else {
-                    completion(.failure(.serverError("No data received")))
+                    return .failure(.serverError("No data received"))
                 }
             }
+            
+        } catch {
+            // Обработка ошибки сети
+            return .failure(.networkError(error.localizedDescription))
         }
-        .resume()
     }
-        
     // MARK: - Создание запроса
-    private func createRequest(url: URL, method: HttpMethods, body: Data? = nil) -> URLRequest {
-        var request = URLRequest(url: url)
+    private func createRequest(
+        url: URL,
+        method: HttpMethods,
+        body: Data? = nil,
+        queryParameters: [String: String]? = nil) -> URLRequest {
+        // Создаем компоненты URL для добавления query-параметров
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            
+        // Добавляем query-параметры, если они есть
+        if let queryParameters = queryParameters {
+            urlComponents?.queryItems = queryParameters.map { key, value in
+                URLQueryItem(name: key, value: value)
+            }
+        }
+        // Получаем итоговый URL с query-параметрами
+        guard let finalURL = urlComponents?.url else {
+            fatalError("Failed to create URL with query parameters")
+        }
+            
+        var request = URLRequest(url: finalURL)
         request.httpMethod = method.rawValue;
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         

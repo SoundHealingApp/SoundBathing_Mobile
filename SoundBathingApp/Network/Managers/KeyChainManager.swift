@@ -12,7 +12,8 @@ class KeyChainManager {
     static let shared = KeyChainManager()
     private let jwtTokenKey: String = "jwt_token"
     private let userIdKey: String = "user_id"
-    
+    private let userPasswordHash: String = "user_password_hash"
+
     // MARK: - Token
     func saveToken(_ token: String) {
         KeychainWrapper.standard.set(token, forKey: jwtTokenKey)
@@ -38,4 +39,14 @@ class KeyChainManager {
     func deleteUserId() {
         KeychainWrapper.standard.removeObject(forKey: userIdKey)
     }
+    
+    // MARK: - PasswordHash
+    func saveUserPasswordHash(_ password: String) {
+        KeychainWrapper.standard.set(password, forKey: userPasswordHash)
+    }
+    
+    func getUserPasswordHash() -> String? {
+        return KeychainWrapper.standard.string(forKey: userPasswordHash)
+    }
+
 }

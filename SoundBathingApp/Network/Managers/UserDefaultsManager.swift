@@ -10,13 +10,25 @@ import Foundation
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     
-    static let userNameKey: String = "userName"
+    static let userNameKey: String = "userEmail"
+    static let userEmailKey: String = "userName"
     static let userSurnameKey: String = "userSurname"
     
     static let birthDateKey: String = "userBirthDate"
-    // MARK: - User info
     
-    // MARK: Save and get to/from userDefaults user name.
+    // MARK: - User email.
+    func saveUserEmail(email: String) {
+        UserDefaults.standard.set(email, forKey: UserDefaultsManager.userEmailKey)
+    }
+    
+    func getUserEmail() -> String? {
+        if let email = UserDefaults.standard.string(forKey: UserDefaultsManager.userEmailKey) {
+            return email
+        }
+        return nil
+    }
+    
+    // MARK: - User name.
     func saveUserName(name: String) {
         UserDefaults.standard.set(name, forKey: UserDefaultsManager.userNameKey)
     }
@@ -28,7 +40,7 @@ class UserDefaultsManager {
         return nil
     }
     
-    // MARK: Save and get to/from userDefaults user name.
+    // MARK: - User surname.
     func saveUserSurname(surname: String) {
         UserDefaults.standard.set(surname, forKey: UserDefaultsManager.userSurnameKey)
     }
@@ -40,7 +52,7 @@ class UserDefaultsManager {
         return nil
     }
     
-    // MARK: Save and get to/from userDefaults user birth date.
+    // MARK: - User birthDate.
     func saveUserBirthDate(birthDate: String) {
         UserDefaults.standard.set(birthDate, forKey: UserDefaultsManager.birthDateKey)
     }
