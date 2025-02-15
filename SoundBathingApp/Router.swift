@@ -21,12 +21,12 @@ class Router {
         path.append(Route.birthEnteringView)
     }
     
-    func navigateToSwiftUIView() {
-        path.append(Route.swiftUIView)
-    }
-    
     func navigateToSignUp() {
         path.append(Route.signUp)
+    }
+    
+    func navigateToSwiftUIView() {
+        path.append(Route.swiftUIView)
     }
     
     func popToRoot() {

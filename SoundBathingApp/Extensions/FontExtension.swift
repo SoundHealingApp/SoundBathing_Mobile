@@ -13,6 +13,7 @@ enum CustomFonts: String {
     case FuturaPTLight = "FuturaPT-Light"
     case MarcellusRegular = "Marcellus-Regular"
     case LoraRegular = "Lora-VariableFont_wght"
+    case OpenSansRegular = "OpenSans-Regular"
 }
 
 extension Font {
