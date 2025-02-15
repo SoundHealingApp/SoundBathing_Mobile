@@ -7,6 +7,7 @@
 
 import Foundation
 
+// TODO: возможно придется вынести в другую папку и переиспользовать.
 struct ServerErrorResponse: Codable {
     let status: Int
     let detail: String
