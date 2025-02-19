@@ -40,7 +40,7 @@ struct BirthdateEnteringView: View {
                 
                 BirthDateView(date: $date)
                 
-                NextButtonView(isDisabled: false) {
+                CustomButtonView(text: "Next", isDisabled: false) {
                     birthDateViewModel.saveBirthBateToUserDefaults(birthDate: date)
                     Task {
                         await createUserViewModel.sendCreateUserRequestAsync()

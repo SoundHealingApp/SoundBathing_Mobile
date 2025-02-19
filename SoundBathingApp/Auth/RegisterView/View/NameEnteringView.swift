@@ -27,8 +27,7 @@ struct NameEnteringView: View {
                     .padding(.top)
             }
             .padding()
-            
-            NextButtonView(isDisabled: name.isEmpty || surname.isEmpty) {
+            CustomButtonView(text: "Next", isDisabled: name.isEmpty || surname.isEmpty) {
                 viewModel.saveNameDataToUserDefaults(name: name, surname: surname)
                 router.navigateToBirthEnteringView()
             }

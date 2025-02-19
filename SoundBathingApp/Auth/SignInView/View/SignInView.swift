@@ -54,7 +54,7 @@ struct SignInView: View {
                 PasswordTextField(password: $password, isFirstPasswordValid: $isPasswordValid)
                 
                 VStack(spacing: 20) {
-                    SignInButtonView(isDisabled: isSignInButtonDisabled) {
+                    CustomButtonView(text: "SIGN IN", isDisabled: isSignInButtonDisabled) {
                         Task {
                             await viewModel.sendSignInRequestAsync(email: email, password: password)
                         }

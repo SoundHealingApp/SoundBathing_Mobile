@@ -84,7 +84,7 @@ struct RegisterView: View {
                     .padding(.bottom, 10)
                 }
                 
-                NextButtonView(isDisabled: isNextButtonDisabled) {
+                CustomButtonView(text: "Next", isDisabled: isNextButtonDisabled) {
                     Task {
                         await viewModel.checkUserExistence(email: email, password: password)
                     }

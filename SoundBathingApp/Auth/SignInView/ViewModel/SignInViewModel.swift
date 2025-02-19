@@ -43,6 +43,7 @@ class SignInViewModel: ObservableObject {
                 KeyChainManager.shared.saveToken(user.token)
                 KeyChainManager.shared.saveUserId(user.userId)
                 isSignedInSuccessfully = true
+                // TODO: определить роль пользователя
             case .failure(let error):
                 switch error {
                 case .serverError(let message):

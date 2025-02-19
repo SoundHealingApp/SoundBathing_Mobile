@@ -11,7 +11,8 @@ import SwiftUI
 struct SoundBathingAppApp: App {
     var body: some Scene {
         WindowGroup {
-            SignInView()
+            CreateMeditationView()
+//            SignInView()
 //            BirthdateEnteringView()
 //            RegisterView()
 //            NameEnteringView()
