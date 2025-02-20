@@ -11,9 +11,8 @@ import AVFoundation
 
 /// Выбор аудиофайлов и импорт их в приложение
 struct ImportAudioManager: UIViewControllerRepresentable {
-    @Binding var song: PracticeSongModel?
-//    @Binding var data: Data?
-//    @Binding var duration: Data?
+    @Binding var data: Data?
+    @Binding var duration: TimeInterval?
 
 
     func makeCoordinator() -> Coordinator {
@@ -58,15 +57,13 @@ struct ImportAudioManager: UIViewControllerRepresentable {
                 /// Создание Asset для извлечения метаданных
                 let asset = AVAsset(url: url)
                 
-                var song = PracticeSongModel(data: document)
-
                 Task {
                     let duration = try await asset.load(.duration)
-                    
-                    song.duration = CMTimeGetSeconds(duration)
+                    let transformedDuration = CMTimeGetSeconds(duration)
 
                     DispatchQueue.main.async {
-                        self.parent.song = song
+                        self.parent.data = document
+                        self.parent.duration = transformedDuration
                     }
                  }
                 

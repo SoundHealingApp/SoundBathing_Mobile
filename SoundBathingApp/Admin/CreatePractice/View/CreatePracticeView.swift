@@ -15,25 +15,16 @@ struct CreateMeditationView: View {
     @State private var description: String = ""
     @State private var therapeuticPurpose: String = ""
     @State private var frequency: String = ""
-
+    @State private var audio: Data? = nil
+    @State private var duration: TimeInterval? = nil
     @State private var image: UIImage? = nil
             
     @State private var isShowingImagePicker: Bool = false
     @State private var isShowingAudioPicker: Bool = false
     
-    @StateObject var vm = CreatePracticeViewModel()
-    
     private var isPracticeCanBeCreated: Bool {
-        if vm.song != nil {
-            if title != "" && description != "" && therapeuticPurpose != "" {
-                if (selectedPracticeType == .restorative) {
-                    if (frequency == "") {
-                        return false
-                    }
-                }
-                return true
-            }
-            return false
+        if audio != nil {
+            return true
         }
         return false
     }
@@ -41,47 +32,11 @@ struct CreateMeditationView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(alignment: .leading, spacing: 24) {
                     PracticesTopBar(selectedTopBar: $selectedPracticeType)
                         .frame(height: 70)
                     
                     HStack {
-                        Button(action: {
-                            isShowingImagePicker = true
-                        }) {
-                            if let selectedImage = image {
-                                Image(uiImage: selectedImage)
-                                    .resizable()
-                                    .scaledToFill() // Растягиваем изображение пропорционально
-                                    .frame(width: 200, height: 200) // Уменьшенный размер изображения
-                                    .clipped() // Обрезаем лишнее
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                    )
-                            } else {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(.systemGray6))
-                                        .frame(width: 200, height: 200) // Уменьшенный размер поля
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                        )
-                                    
-                                    VStack {
-                                        Image(systemName: "photo")
-                                            .font(.largeTitle)
-                                            .foregroundColor(.gray)
-                                        Text("Add image")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                    }
-                                }
-                            }
-                        }
-                        
                         // Кнопка выбора звука
                         Button(action: {
                             isShowingAudioPicker = true
@@ -96,15 +51,60 @@ struct CreateMeditationView: View {
                                     )
                                 
                                 VStack {
-                                    Image(systemName: "waveform")
-                                        .font(.title)
-                                        .foregroundColor(.gray)
-                                    Text("Add audio")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
+                                    if audio == nil {
+                                        Image(systemName: "waveform")
+                                            .font(.title)
+                                            .foregroundColor(.gray)
+                                        Text("Add audio")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Image(systemName: "waveform")
+                                            .font(.title)
+                                            .foregroundColor(.green)
+                                        Text("Change audio")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
                                 }
                             }
                         }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            isShowingImagePicker = true
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.systemGray6))
+                                    .frame(width: 150, height: 150)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                    )
+                                
+                                VStack {
+                                    if image == nil {
+                                        Image(systemName: "photo")
+                                            .font(.title)
+                                            .foregroundColor(.gray)
+                                        Text("Add image")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Image(systemName: "photo")
+                                            .font(.title)
+                                            .foregroundColor(.green)
+                                        Text("Change image")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer()
                     }
                     .padding(.horizontal)
                     
@@ -112,37 +112,35 @@ struct CreateMeditationView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         NameFieldView(name: $title, placeholderName: "Title")
                         NameFieldView(name: $description, placeholderName: "Description")
-                        NameFieldView(name: $therapeuticPurpose, placeholderName: "TherapeuticPurpose")
-                    }
-                    .padding(.horizontal)
-                    
-                    if selectedPracticeType == .restorative {
-                        VStack(alignment: .leading, spacing: 12) {
+                        NameFieldView(name: $therapeuticPurpose, placeholderName: "Therapeutic Purpose")
+                        
+                        if selectedPracticeType == .restorative {
                             NameFieldView(name: $frequency, placeholderName: "Frequency")
                         }
-                        .padding(.horizontal)
-                    }
-                    
-                    if let song = vm.song {
-                        let model = PracticeSongModel(
-                            title: title,
-                            description: description,
-                            meditationType: selectedPracticeType,
-                            therapeuticPurpose: therapeuticPurpose,
-                            frequency: frequency,
-                            data: song.data,
-                            image: image,
-                            duration: song.duration)
                         
-                        PracticeSongCell(song: model, durationFormated: vm.formateDuration)
-                            .onTapGesture {
-                                vm.playAudio(practiceSong: song)
+                        VStack {
+                            if isPracticeCanBeCreated {
+                                let model = PracticeSongModel(
+                                    title: title,
+                                    description: description,
+                                    meditationType: selectedPracticeType,
+                                    therapeuticPurpose: therapeuticPurpose,
+                                    frequency: frequency,
+                                    data: audio!,
+                                    image: image,
+                                    duration: duration!)
+                                
+                                MiniPlayerView(song: model)
+                                    .padding()
+                                    .contentShape(Rectangle()) // Ограничиваем область нажатия
                             }
-                    }
-                    
-                    CustomButtonView(text: "Create", isDisabled: false) {
+                        }
+                        
+                        CustomButtonView(text: "Create", isDisabled: false) {
 
+                        }
                     }
+                    .padding(.horizontal)
                 }
                 .padding(.vertical)
             }
@@ -152,21 +150,11 @@ struct CreateMeditationView: View {
                 ImagePicker(image: $image)
             }
             .sheet(isPresented: $isShowingAudioPicker) {
-                ImportAudioManager(song: $vm.song)
+                ImportAudioManager(data: $audio, duration: $duration)
             }
         }
     }
 }
-
-// change
-//                        PracticeSongCell(song: PracticeSongModel(
-//                                title: title,
-//                                description: description,
-//                                meditationType: selectedPracticeType,
-//                                therapeuticPurpose: therapeuticPurpose,
-//                                frequency: frequency,
-//                                data: nil,
-//                                image: nil))
 
 
 //struct CreateMeditationView_Previews: PreviewProvider {
