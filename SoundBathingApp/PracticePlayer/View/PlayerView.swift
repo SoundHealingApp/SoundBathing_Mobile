@@ -1,5 +1,5 @@
 //
-//  MiniPlayerView.swift
+//  PlayerView.swift
 //  SoundBathingApp
 //
 //  Created by Ирина Печик on 18.02.2025.
@@ -7,11 +7,17 @@
 
 import SwiftUI
 
-/// Ячейка для звукового представления.
-struct MiniPlayerView: View {
-    var song: PracticeSongModel
-    @StateObject var vm = MiniPlayerViewModel()
+/// Вью для звукового представления.
+struct PlayerView: View {
+    @StateObject var vm = PlayerViewModel()
     @State private var showFullPlayer = false
+    
+    @Binding var audio: Data
+    @Binding var image: UIImage?
+    @Binding var title: String
+    @Binding var therapeuticPurpose: String
+    @Binding var frequency: String
+    
     @Namespace private var playerAnimation
     
     var frameImage: CGFloat {
@@ -20,6 +26,12 @@ struct MiniPlayerView: View {
     
     var body: some View {
         MiniPlayer()
+            .onAppear {
+                vm.getAudioInfo(song: audio)
+            }
+            .onChange(of: audio) { _, newAudio in
+                vm.getAudioInfo(song: newAudio)
+            }
             .onTapGesture {
                 withAnimation(.spring) {
                     self.showFullPlayer.toggle()
@@ -32,24 +44,8 @@ struct MiniPlayerView: View {
     private func MiniPlayer() -> some View {
         VStack {
             HStack {
-                if let uiImage = song.image {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: frameImage, height: frameImage)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else {
-                    ZStack {
-                        Color.gray
-                            .frame(width: frameImage, height: frameImage)
-                        Image(systemName: "music.note")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 30)
-                            .foregroundStyle(Color.whiteAdaptive)
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
+                SongImageView(image: image, size: frameImage)
+
                 if !showFullPlayer {
                     VStack(alignment: .leading) {
                         SongDescription()
@@ -59,13 +55,10 @@ struct MiniPlayerView: View {
                     Spacer()
                     
                     CustomButton(image: vm.isPlaying ? "pause" : "play.fill", size: .headline) {
-                        vm.playAudio(song: song.data)
+                        vm.playPauseAudio()
                     }
                     .padding(.trailing)
                 }
-                
-    //            Text(vm.formateDuration(duration: song.duration))
-    //                .font(customFont: .FuturaPTLight, size: 20)
             }
             .padding(.horizontal, 5)
             .padding(.vertical, 5)
@@ -91,18 +84,29 @@ struct MiniPlayerView: View {
         VStack {
             /// Duration
             HStack {
-                Text("00:00")
+                Text("\(vm.formateDuration(duration: vm.currentTime))")
                     .font(customFont: .FuturaPTLight, size: 20)
                 Spacer()
-                Text("03:27")
+                Text("\(vm.formateDuration(duration: vm.totalTime))")
                     .font(customFont: .FuturaPTLight, size: 20)
             }
             
             /// Slider
-            Divider()
+            Slider(value: $vm.currentTime, in: 0...vm.totalTime) { editing in
+                if (!editing) {
+                    vm.seekAudio(time: vm.currentTime)
+                }
+            }
+            .offset(y: -18)
+            .tint(.blackAdaptive)
+            .onAppear {
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    vm.updateProgress()
+                }
+            }
             
-            CustomButton(image: "play.fill", size: .largeTitle) {
-                // action
+            CustomButton(image: vm.isPlaying ? "pause" : "play.fill", size: .largeTitle) {
+                vm.playPauseAudio()
             }
             .padding()
         }
@@ -111,11 +115,33 @@ struct MiniPlayerView: View {
     
     @ViewBuilder
     private func SongDescription() -> some View {
-        Text(song.title == "" ? "Title" : song.title)
+        Text(title == "" ? "Title" : title)
             .font(customFont: .MarcellusRegular, size: 20)
         
-        Text("\(song.therapeuticPurpose == "" ? "therapeutic purpose" : song.therapeuticPurpose) \(song.frequency ?? "")")
+        Text("\(therapeuticPurpose == "" ? "therapeutic purpose" : therapeuticPurpose) \(frequency)")
             .font(customFont: .FuturaPTLight, size: 20)
+    }
+    
+    @ViewBuilder
+    private func SongImageView(image: UIImage?, size: CGFloat) -> some View {
+        if let uiImage = image {
+            Image(uiImage: uiImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+        } else {
+            ZStack {
+                Color.gray
+                    .frame(width: size, height: size)
+                Image(systemName: "music.note")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: size/4)
+                    .foregroundStyle(Color.whiteAdaptive)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
     }
     
     private func CustomButton(image: String, size: Font, action: @escaping () -> ()) -> some View {
@@ -127,8 +153,4 @@ struct MiniPlayerView: View {
                 .font(size)
         }
     }
-}
-
-#Preview {
-    MiniPlayerView(song: PracticeSongModel(title: "", description: "", meditationType: .daily, therapeuticPurpose: "", data: Data(count: 3), duration: 3))
 }

@@ -14,7 +14,6 @@ struct ImportAudioManager: UIViewControllerRepresentable {
     @Binding var data: Data?
     @Binding var duration: TimeInterval?
 
-
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
     }

@@ -47,7 +47,7 @@ struct RouterViewModifier: ViewModifier {
             case .birthEnteringView:
                 BirthdateEnteringView()
             case .swiftUIView: // TODO: delete
-                SwiftUIView()
+                CreateMeditationView()
             }
         }
         .environment(router)
@@ -74,5 +74,5 @@ enum Route: Hashable {
     case signUp
     case nameEnteringView
     case birthEnteringView
-    case swiftUIView // TODO: delete
+    case swiftUIView
 }

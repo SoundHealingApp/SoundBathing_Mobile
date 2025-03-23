@@ -11,7 +11,8 @@ import SwiftUI
 struct SoundBathingAppApp: App {
     var body: some Scene {
         WindowGroup {
-            CreateMeditationView()
+            PracticesView()
+//            CreateMeditationView()
 //            SignInView()
 //            BirthdateEnteringView()
 //            RegisterView()
@@ -20,3 +21,14 @@ struct SoundBathingAppApp: App {
         }
     }
 }
+
+//func f() {
+//    for family in UIFont.familyNames.sorted() {
+//        print("Family: \(family)")
+//        
+//        let fontNames = UIFont.fontNames(forFamilyName: family)
+//        for fontName in fontNames {
+//            print("    Font: \(fontName)")
+//        }
+//    }
+//}

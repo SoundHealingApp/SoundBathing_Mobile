@@ -11,4 +11,5 @@ enum NetworkError: Error {
     case decodableError
     case serverError(String)
     case networkError(String)
+    case imageDecodingError
 }
