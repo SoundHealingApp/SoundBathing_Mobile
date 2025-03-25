@@ -26,7 +26,8 @@ struct PracticesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHGrid(rows: rows, spacing: 16) {
                                 ForEach(viewModel.practices.filter { $0.meditationType == MeditationCategory.daily }, id: \.id) { practice in
-                                    PreviewPracticeCell(practice: practice)
+                                    PreviewPracticeCell(viewModel: viewModel, practice: practice)
+                                        .contentShape(Rectangle())
                                 }
                                 
                             }
@@ -42,7 +43,8 @@ struct PracticesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHGrid(rows: rows, spacing: 16) {
                                 ForEach(viewModel.practices.filter { $0.meditationType == MeditationCategory.restorative }, id: \.id) { practice in
-                                    PreviewPracticeCell(practice: practice)
+                                    PreviewPracticeCell(viewModel: viewModel, practice: practice)
+                                        .contentShape(Rectangle())
                                 }
                                 
                             }

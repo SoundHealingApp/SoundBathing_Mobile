@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct PreviewPracticeCell: View {
+    @StateObject var viewModel: GetPracticesViewModel
+
     let practice: Practice
     
     var body: some View {
@@ -22,7 +24,9 @@ struct PreviewPracticeCell: View {
                         height: size.height)
                     
                     Button {
-                        // action
+                        Task {
+                            await viewModel.toggleLike(practiceId: practice.id)
+                        }
                     } label: {
                         Image(systemName: "heart.fill")
                             .padding(10)
@@ -35,9 +39,11 @@ struct PreviewPracticeCell: View {
                 
                 VStack(alignment: .leading) {
                     Text(practice.title)
+                        .foregroundStyle(.black)
                         .font(customFont: .LoraRegular, size: 18)
                         .lineLimit(1)
                     Text(practice.therapeuticPurpose)
+                        .foregroundStyle(.black)
                         .font(customFont: .LoraRegular, size: 15)
                         .lineLimit(1)
                 }
@@ -54,19 +60,20 @@ struct PreviewPracticeCell: View {
 }
 
 #Preview {
-    PracticesView()
+//    PracticesView()
 
-//    PreviewPracticeCell(
-//        practice: Practice(
-//            id: "id",
-//            title: "title",
-//            description: "dec",
-//            meditationType: MeditationCategory.daily,
-//            therapeuticPurpose: "ther",
-//            image: UIImage(systemName: "swift")!,
-////            audioLink: "link",
-//            feedbacks: [],
-//            isFavorite: false
-//        )
-//    )
+    PreviewPracticeCell(
+        viewModel: GetPracticesViewModel(),
+        practice: Practice(
+            id: "id",
+            title: "title",
+            description: "dec",
+            meditationType: MeditationCategory.daily,
+            therapeuticPurpose: "ther",
+            image: UIImage(systemName: "swift")!,
+//            audioLink: "link",
+            feedbacks: [],
+            isFavorite: false
+        )
+    )
 }

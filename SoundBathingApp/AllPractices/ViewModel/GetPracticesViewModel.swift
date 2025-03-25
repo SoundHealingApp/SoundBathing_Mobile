@@ -13,10 +13,11 @@ class GetPracticesViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
     
-    @Published var practices: Set<Practice> = []
-    
-    @Published var likedPracticeIds: Set<String> = []
-    @Published var likedPractices: Set<Practice> = []
+    @Published var practices: [Practice] = []
+    @Published var likedPractices: [Practice] = []
+
+    private var likedPracticeIds: Set<String> = []
+    private var userId: String? = nil
 
     /// Скачивание всех практик. Подумать над тем, чтобы скачивать не все
     func getAllPractices() async {
@@ -29,13 +30,98 @@ class GetPracticesViewModel: ObservableObject {
     func getLikedPractices() {
         for practice in practices {
             if likedPracticeIds.contains(practice.id) {
-                likedPractices.insert(practice)
+                likedPractices.append(practice)
             }
         }
     }
     
+    func toggleLike(practiceId: String) async {
+        if let index = practices.firstIndex(where: { $0.id == practiceId }) {
+            if !practices[index].isFavorite {
+                await likePractice(practiceId: practiceId)
+            } else {
+                await unlikePractice(practiceId: practiceId)
+            }
+            
+            practices[index].isFavorite.toggle()
+        }
+    }
     
     // MARK: - Private methods
+    private func likePractice(practiceId: String) async {
+        if !likedPracticeIds.contains(practiceId) {
+            likedPracticeIds.insert(practiceId)
+        }
+    
+        if userId == nil {
+            guard let id = KeyChainManager.shared.getUserId() else {
+                print("Ошибка: не удалось получить userId из KeyChain")
+                errorMessage = "User identification error. Try to re-authorise in the application"
+                return
+            }
+            
+            userId = id
+        }
+
+        
+        let endPoint = "/users/\(userId!)/\(EndPoints.GetLikedPractices)/\(practiceId)"
+        
+        let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .POST
+        )
+        
+        switch result {
+            case .success:
+                self.errorMessage = nil
+                print("Лайк успешно добавлен")
+            case .failure(let error):
+                print("Ошибка добавления лайка")
+                switch error {
+                case .serverError(let message):
+                    self.errorMessage = message
+                default:
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        
+    }
+    
+    private func unlikePractice(practiceId: String) async {
+        likedPracticeIds.remove(practiceId)
+        likedPractices.removeAll { $0.id == practiceId }
+        
+        if userId == nil {
+            guard let id = KeyChainManager.shared.getUserId() else {
+                print("Ошибка: не удалось получить userId из KeyChain")
+                errorMessage = "User identification error. Try to re-authorise in the application"
+                return
+            }
+            
+            userId = id
+        }
+        
+        let endPoint = "/users/\(userId!)/\(EndPoints.GetLikedPractices)/\(practiceId)"
+        
+        let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .DELETE
+        )
+        
+        switch result {
+            case .success:
+                self.errorMessage = nil
+                print("Лайк успешно удален")
+            case .failure(let error):
+                print("Ошибка удаления лайка")
+                switch error {
+                case .serverError(let message):
+                    self.errorMessage = message
+                default:
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+    }
     
     /// Скачивание практики по типу
     private func getPracticesByType(type: MeditationCategory) async {
@@ -95,8 +181,12 @@ class GetPracticesViewModel: ObservableObject {
     /// Преобразование ответа от сервера в модели практик
     private func createPracticesModels(practicesDtos: [PracticeDto]) async {
         for practiceDto in practicesDtos {
+            guard !practices.contains(where: { $0.id == practiceDto.id }) else {
+                continue
+            }
+            
             if let practiceImage = await downloadPracticeImage(practiceId: practiceDto.id) {
-                var isPracticeLiked = likedPracticeIds.contains(practiceDto.id)
+                let isPracticeLiked = likedPracticeIds.contains(practiceDto.id)
 
                 let practice = Practice(
                     id: practiceDto.id,
@@ -109,7 +199,7 @@ class GetPracticesViewModel: ObservableObject {
                     isFavorite: isPracticeLiked ? true : false
                 )
                 
-                practices.insert(practice)
+                practices.append(practice)
             }
         }
     }

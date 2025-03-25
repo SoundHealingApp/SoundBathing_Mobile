@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// TODO: отображение сетки может быть некорректным + подумать над фильтрацией заявок с признаком лайка и убрать likedPractices
 struct LikedPracticesView: View {
     @StateObject var viewModel: GetPracticesViewModel
 
@@ -16,8 +17,10 @@ struct LikedPracticesView: View {
         NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: columns) {
-                    ForEach(Array(viewModel.likedPractices), id: \.id) { practice in
-                        PreviewPracticeCell(practice: practice)
+                    ForEach(Array(viewModel.likedPractices.filter { $0.isFavorite }), id: \.id) { practice in
+                        NavigationLink(destination: EmptyView()) {
+                            PreviewPracticeCell(viewModel: viewModel, practice: practice)
+                        }
                     }
                 }
             }
