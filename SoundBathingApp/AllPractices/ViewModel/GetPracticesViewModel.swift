@@ -31,6 +31,7 @@ class GetPracticesViewModel: ObservableObject {
         likedPractices = practices.filter { likedPracticeIds.contains($0.id) }
     }
     
+    /// Переключение лайка
     func toggleLike(practiceId: String) async {
         if let index = practices.firstIndex(where: { $0.id == practiceId }) {
             if !practices[index].isFavorite {

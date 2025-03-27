@@ -19,9 +19,11 @@ struct LikedPracticesView: View {
                     NavigationLink(destination: EmptyView()) {
                         PreviewPracticeCell(viewModel: viewModel, practice: practice)
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
+        .padding(.horizontal, 10)
         .navigationTitle("Favorites")
         .onAppear {
             Task {
@@ -30,7 +32,10 @@ struct LikedPracticesView: View {
         }
     }
 }
-//
+
 //#Preview {
-//    LikedPracticesView()
+//    LikedPracticesView(viewModel: GetPracticesViewModel())
 //}
+#Preview {
+    PracticesView()
+}

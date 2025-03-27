@@ -39,11 +39,9 @@ struct PreviewPracticeCell: View {
                 
                 VStack(alignment: .leading) {
                     Text(practice.title)
-                        .foregroundStyle(.black)
                         .font(customFont: .LoraRegular, size: 18)
                         .lineLimit(1)
                     Text(practice.therapeuticPurpose)
-                        .foregroundStyle(.black)
                         .font(customFont: .LoraRegular, size: 15)
                         .lineLimit(1)
                 }
