@@ -28,11 +28,7 @@ class GetPracticesViewModel: ObservableObject {
     
     /// Получение понравивашихся практик
     func getLikedPractices() {
-        for practice in practices {
-            if likedPracticeIds.contains(practice.id) {
-                likedPractices.append(practice)
-            }
-        }
+        likedPractices = practices.filter { likedPracticeIds.contains($0.id) }
     }
     
     func toggleLike(practiceId: String) async {
