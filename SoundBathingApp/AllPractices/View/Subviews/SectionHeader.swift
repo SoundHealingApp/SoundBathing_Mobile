@@ -16,8 +16,9 @@ struct SectionHeader: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.title2)
-                .bold()
+                .font(customFont: .GraphikMedium, size: 27)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(2)
             Spacer()
         }
         .padding(.horizontal)

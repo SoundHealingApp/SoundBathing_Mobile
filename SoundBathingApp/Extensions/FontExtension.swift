@@ -16,6 +16,8 @@ enum CustomFonts: String {
     case OpenSansRegular = "OpenSans-Regular"
     case FuturaPTBold = "FuturaPT-Bold"
     case FuturaPTMedium = "FuturaPTCond-Medium"
+    case GraphikMedium = "GraphikTrial-Medium"
+    case GraphikRegular = "GraphikTrial-Regular"
 
 }
 

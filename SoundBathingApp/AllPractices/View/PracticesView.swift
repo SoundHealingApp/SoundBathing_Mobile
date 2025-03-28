@@ -26,10 +26,12 @@ struct PracticesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHGrid(rows: rows, spacing: 16) {
                                 ForEach(viewModel.practices.filter { $0.meditationType == MeditationCategory.daily }, id: \.id) { practice in
-                                    PreviewPracticeCell(viewModel: viewModel, practice: practice)
-                                        .contentShape(Rectangle())
+                                    NavigationLink(destination: PracticesDetailView(practice: practice)) {
+                                        PreviewPracticeCell(viewModel: viewModel, sizeCoefficient: 0.6, practice: practice)
+                                            .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                
                             }
                         }
                         .padding(.horizontal, 10)
@@ -43,8 +45,11 @@ struct PracticesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHGrid(rows: rows, spacing: 16) {
                                 ForEach(viewModel.practices.filter { $0.meditationType == MeditationCategory.restorative }, id: \.id) { practice in
-                                    PreviewPracticeCell(viewModel: viewModel, practice: practice)
-                                        .contentShape(Rectangle())
+                                    NavigationLink(destination: PracticesDetailView(practice: practice)) {
+                                        PreviewPracticeCell(viewModel: viewModel, sizeCoefficient: 0.6, practice: practice)
+                                            .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                                 
                             }
@@ -67,13 +72,23 @@ struct PracticesView: View {
             }
         }
         .onAppear {
+            print(f())
             Task {
                 await viewModel.getAllPractices()
             }
         }
     }
 }
-
+func f() {
+    for family in UIFont.familyNames.sorted() {
+        print("Family: \(family)")
+        
+        let fontNames = UIFont.fontNames(forFamilyName: family)
+        for fontName in fontNames {
+            print("    Font: \(fontName)")
+        }
+    }
+}
 #Preview {
     PracticesView()
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PreviewPracticeCell: View {
     @StateObject var viewModel: GetPracticesViewModel
-
+    let sizeCoefficient: Double
     let practice: Practice
     
     var body: some View {
@@ -37,41 +37,47 @@ struct PreviewPracticeCell: View {
                     }
                 }
                 
+                // Градиент для улучшения читаемости текста
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.black.opacity(0.8), Color.black.opacity(0)]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: size.height * 0.4)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                
                 VStack(alignment: .leading) {
-                    Text(practice.title)
-                        .font(customFont: .LoraRegular, size: 18)
-                        .lineLimit(1)
+                    Text(practice.title.uppercased())
+                        .font(customFont: .GraphikMedium, size: 18)
+                        .foregroundStyle(.white)
+                        .lineLimit(3)
                     Text(practice.therapeuticPurpose)
-                        .font(customFont: .LoraRegular, size: 15)
-                        .lineLimit(1)
+                        .font(customFont: .GraphikRegular, size: 15)
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 3)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.background.opacity(0.4))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .frame(width: UIScreen.main.bounds.width * 0.45, height: UIScreen.main.bounds.width * 0.45)
+        .frame(width: UIScreen.main.bounds.width * sizeCoefficient, height: UIScreen.main.bounds.width * sizeCoefficient)
     }
 }
-
 #Preview {
-//    PracticesView()
-
-    PreviewPracticeCell(
-        viewModel: GetPracticesViewModel(),
-        practice: Practice(
-            id: "id",
-            title: "title",
-            description: "dec",
-            meditationType: MeditationCategory.daily,
-            therapeuticPurpose: "ther",
-            image: UIImage(systemName: "swift")!,
-//            audioLink: "link",
-            feedbacks: [],
-            isFavorite: false
-        )
-    )
+    PracticesView()
 }
+//#Preview {
+//    PreviewPracticeCell(
+//        viewModel: GetPracticesViewModel(),
+//        practice: Practice(
+//            id: "id",
+//            title: "title",
+//            description: "dec",
+//            meditationType: MeditationCategory.daily,
+//            therapeuticPurpose: "ther",
+//            image: UIImage(systemName: "swift")!,
+//            feedbacks: [],
+//            isFavorite: false
+//        )
+//    )
+//}

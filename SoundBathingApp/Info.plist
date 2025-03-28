@@ -17,6 +17,8 @@
 		<string>OpenSans-Regular.ttf</string>
 		<string>futura-pt-bold.ttf</string>
 		<string>futura-pt-cond-medium.ttf</string>
+		<string>Graphik-Medium-Trial.otf</string>
+		<string>Graphik-Regular-Trial.otf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

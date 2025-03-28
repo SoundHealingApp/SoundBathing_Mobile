@@ -192,6 +192,7 @@ class GetPracticesViewModel: ObservableObject {
                     meditationType: practiceDto.meditationType,
                     therapeuticPurpose: practiceDto.therapeuticPurpose,
                     image: practiceImage,
+                    frequency: practiceDto.frequency,
                     feedbacks: practiceDto.feedbacks,
                     isFavorite: isPracticeLiked ? true : false
                 )
