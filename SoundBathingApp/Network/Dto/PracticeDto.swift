@@ -17,5 +17,4 @@ struct PracticeDto: Identifiable, Codable {
     var imageLink: String
     var audioLink: String
     var frequency: Double?
-    var feedbacks: [Feedbacks]
 }

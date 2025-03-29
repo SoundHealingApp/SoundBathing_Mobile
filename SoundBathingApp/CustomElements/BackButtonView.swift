@@ -36,7 +36,7 @@ struct BackButtonView: View {
             self.presentationMode.wrappedValue.dismiss()
         } label: {
             Image(systemName: "chevron.backward")
-            .foregroundStyle(.black)
+                .foregroundStyle(.white)
             .font(.system(size: 20))
         }
     }

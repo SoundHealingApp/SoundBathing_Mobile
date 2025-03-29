@@ -1,0 +1,165 @@
+//
+//  DetailInfoView.swift
+//  SoundBathingApp
+//
+//  Created by Ирина Печик on 28.03.2025.
+//
+
+import SwiftUI
+
+// TODO: не давать возможность оставить комментарий, если текущий пользователь - это администратор
+
+struct PracticeDetailsInfoView: View {
+    
+    // MARK: - Properties
+    let practice: Practice
+    
+    @State private var showingReviewForm = false
+    @StateObject var feedbacksViewModel = GetPracticeFeedbacksViewModel()
+    
+    // MARK: View
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            
+            /// Терапевтическая цель + Частота
+            HStack(alignment: .top) {
+                
+                /// Описание терапевтической цели
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Therapeutic Purpose")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.secondary)
+                    
+                    Text(practice.therapeuticPurpose)
+                        .font(.system(size: 18, weight: .semibold))
+                }
+                
+                Spacer()
+                
+                /// Описание частоты (если она есть)
+                if let frequency = practice.frequency {
+                    VStack(alignment: .trailing, spacing: 8) {
+                        Text("Frequency")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.secondary)
+
+                        HStack(spacing: 6) {
+                            Image(systemName: "waveform.path.ecg")
+                            Text("\(String(format: "%.1f", frequency)) Hz")
+                                .font(.system(size: 18, weight: .semibold))
+                        }
+                    }
+                }
+            }
+            .padding(.bottom, 10)
+            
+            /// Описание
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Description")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Text(practice.description)
+                    .font(.system(size: 16, weight: .regular))
+                    .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            /// Секция с отзывами
+            if !feedbacksViewModel.feedbacks.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Reviews")
+                            .font(.system(size: 18, weight: .semibold))
+                        
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.orange)
+                            Text(String(format: "%.1f", feedbacksViewModel.averageRating))
+                                .font(.system(size: 14, weight: .medium))
+                            Text("(\(feedbacksViewModel.feedbacks.count))")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Button {
+                            showingReviewForm = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Spacer()
+                        
+                        Button("See All") {
+                            // TODO: Show all reviews на отдельной странице
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.blue)
+                        
+                    }
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 15) {
+                            ForEach(feedbacksViewModel.feedbacks) { feedback in
+                                FeedbackCard(feedback: feedback)
+                                    .frame(width: 280, height: 100)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 2)
+                    }
+                }
+                .padding(.top, 10)
+            }
+            
+            /// Кнопка "Listen"
+            Button {
+                // TODO: добавить действие для прослушивания
+            } label: {
+                HStack {
+                    Image(systemName: "play.fill") // Иконка кнопки
+                    Text("Start Listening")
+                        .font(.system(size: 18, weight: .semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .foregroundStyle(.white)
+                .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
+            }
+            .padding(.top, 20)
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 30)
+        .sheet(isPresented: $showingReviewForm) {
+            AddFeedbackView()
+        }
+        .onAppear {
+            Task {
+                await feedbacksViewModel.getPracticeFeedBacks(practiceId: practice.id)
+            }
+        }
+    }
+}
+
+
+#Preview {
+    PracticeDetailsInfoView(
+        practice: Practice(
+        id: "123",
+        title: "Walking Meditation: Gratitude in Motion",
+        description: "This post-drop-off walking meditation invites you to slow down and reconnect with gratitude as you walk. With each step, focus on your breath and the simple beauty of this moment — the privilege of guiding a young life and the calm that follows the morning rush. Let your senses ground you, your breath anchor you, and gratitude gently fill the space between each step.",
+        meditationType: .daily,
+        therapeuticPurpose: "for health",
+        image: UIImage(systemName: "lock.document.fill")!,
+        frequency: 3,
+        feedbacks: [
+            Feedback(id: "1", meditationId: "12", userName: "Irina", comment: "This meditation helped me reduce stress significantly after just a week of practice.", estimate: 5),
+            Feedback(id: "2", meditationId: "12", userName: "Irina", comment: "This meditation helped me reduce stress significantly after just a week of practice.", estimate: 5),
+            Feedback(id: "3", meditationId: "12", userName: "Irina", comment: "This meditation helped me reduce stress significantly after just a week of practice. This meditation helped me reduce stress significantly after just a week of practice", estimate: 5)],
+        isFavorite: false)
+    )
+}

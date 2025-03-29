@@ -16,7 +16,8 @@ struct LikedPracticesView: View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVGrid(columns: columns) {
                 ForEach(Array(viewModel.likedPractices.filter { $0.isFavorite }), id: \.id) { practice in
-                    NavigationLink(destination: PracticesDetailView(practice: practice)) {
+                    NavigationLink(
+                        destination: PracticesInfoView(practice: practice,getPracticesViewModel: viewModel)) {
                         PreviewPracticeCell(viewModel: viewModel, sizeCoefficient: 0.45, practice: practice)
                     }
                     .buttonStyle(.plain)

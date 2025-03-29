@@ -23,4 +23,7 @@ class EndPoints {
     // MARK: Practice's likes
     static let GetLikedPractices: String = "liked-meditations"
     
+    // MARK: Practice's feedbacks
+    static let GetPracticeFeedbacks: String = "/api/meditations"
+    
 }

@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+// TODO: мб не подгружать сразу все отзывы?
 @MainActor
 class GetPracticesViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
@@ -21,7 +22,7 @@ class GetPracticesViewModel: ObservableObject {
 
     /// Скачивание всех практик. Подумать над тем, чтобы скачивать не все
     func getAllPractices() async {
-        await getLikedPracticeIds()
+        await getLikedPracticeIds() /// Нужно, чтобы отобразить лайки
         await getPracticesByType(type: MeditationCategory.daily)
         await getPracticesByType(type: MeditationCategory.restorative)
     }
@@ -140,7 +141,7 @@ class GetPracticesViewModel: ObservableObject {
                 default:
                     self.errorMessage = error.localizedDescription
                 }
-            }
+        }
     }
     
     /// Получение понравившися практик.
@@ -193,7 +194,7 @@ class GetPracticesViewModel: ObservableObject {
                     therapeuticPurpose: practiceDto.therapeuticPurpose,
                     image: practiceImage,
                     frequency: practiceDto.frequency,
-                    feedbacks: practiceDto.feedbacks,
+                    feedbacks: [], /// не подргружаем на данном этапе практики
                     isFavorite: isPracticeLiked ? true : false
                 )
                 

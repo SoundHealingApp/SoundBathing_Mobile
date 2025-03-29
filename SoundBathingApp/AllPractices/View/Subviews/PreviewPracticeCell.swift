@@ -22,6 +22,8 @@ struct PreviewPracticeCell: View {
                         image: practice.image,
                         width: size.width,
                         height: size.height)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+
                     
                     Button {
                         Task {

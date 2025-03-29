@@ -16,9 +16,8 @@ struct Practice: Identifiable, Hashable {
     var therapeuticPurpose: String
     var rating: Double?
     var image: UIImage
-//    var audio: Data
     var frequency: Double?
-    var feedbacks: [Feedbacks]
+    var feedbacks: [Feedback]
     var isFavorite: Bool
     
     func hash(into hasher: inout Hasher) {
