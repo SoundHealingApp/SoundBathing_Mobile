@@ -14,32 +14,39 @@ struct PracticesDetailView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
+                /// Картинка с градиентом и заголовком
                 ZStack(alignment: .bottomLeading) {
                     CardImageView(
                         image: practice.image,
                         width: UIScreen.main.bounds.width,
-                        height: UIScreen.main.bounds.height / 3)
+                        height: UIScreen.main.bounds.height / 3.2)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .shadow(color: .black.opacity(0.3), radius: 10, x: 5, y: 8)
                     
-                    // Градиентный слой для читаемости текста
+                    /// Градиентный слой для читаемости текста
                     LinearGradient(
-                        gradient: Gradient(colors: [Color.black.opacity(0.7), Color.clear]),
+                        gradient: Gradient(colors: [Color.black.opacity(0.8), Color.clear]),
                         startPoint: .bottom,
                         endPoint: .top
                     )
-                    .frame(height: 80)
+                    .frame(height: 120)
+                    .clipShape(RoundedRectangle(cornerRadius: 20)) // Скругляем градиент тоже
+
                     
+                    /// Заголовок на изображении
                     Text(practice.title)
                         .font(customFont: .GraphikMedium, size: 30)
                         .foregroundStyle(.white)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                         .padding(.leading, 20)
                         .padding(.bottom, 10)
+                        .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 2) // Добавляем тень для текста
+
                 }
                 .frame(maxWidth: .infinity)
+                .padding(.horizontal, 16) //ю
                 
+                /// Информация о практике
                 DetailInfoView(practice: practice)
                 
                 Spacer()

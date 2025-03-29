@@ -13,38 +13,55 @@ struct DetailInfoView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            
+            /// Терапевтическая цель + Частота
             HStack {
                 Text(practice.therapeuticPurpose)
-                    .font(customFont: .GraphikMedium, size: 25)
+                    .font(customFont: .GraphikMedium, size: 22)
                 
-                if (practice.frequency != nil) {
+                if let frequency = practice.frequency {
                     Spacer()
                     
-                    Text(String(format: "%.2f HZ", practice.frequency!))
-                        .font(customFont: .GraphikMedium, size: 25)
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                        
+                        Text("\(String(format: "%.2f", frequency)) HZ")
+                            .font(customFont: .GraphikMedium, size: 22)
+                    }
+                    .foregroundColor(.gray)
                 }
             }
             
+            /// Описание
             Text(practice.description)
-                .font(customFont: .GraphikRegular, size: 20)
+                .font(customFont: .GraphikRegular, size: 18)
+                .foregroundColor(.primary)
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 15))
                 .fixedSize(horizontal: false, vertical: true)
 
             // TODO: добавить отзывы
             
+            /// Кнопка "Listen"
             Button {
-                // action
+                // TODO: добавить действие для прослушивания
             } label: {
-                Text("Listen")
-                    .font(customFont: .GraphikMedium, size: 20)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(.white)
-                    .padding()
-                    .background(.black)
-                    .clipShape(Capsule())
-                    .shadow(color: .black.opacity(0.3), radius: 10, x: 5, y: 8)
+                HStack {
+                    Image(systemName: "play.fill") // Иконка кнопки
+                    Text("Listen")
+                        .font(customFont: .GraphikMedium, size: 20)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .foregroundColor(.white)
+                .background(.black)
+                .clipShape(Capsule())
+                .shadow(color: .gray.opacity(0.3), radius: 10, x: 5, y: 8)
             }
         }
         .padding(.horizontal, 30)
+        .padding(.top, 10)
     }
 }
 
@@ -58,7 +75,7 @@ struct DetailInfoView: View {
         meditationType: .daily,
         therapeuticPurpose: "for health",
         image: UIImage(systemName: "lock.document.fill")!,
-        frequency: nil,
+        frequency: 3,
         feedbacks: [],
         isFavorite: false)
     )
