@@ -25,5 +25,5 @@ class EndPoints {
     
     // MARK: Practice's feedbacks
     static let GetPracticeFeedbacks: String = "/api/meditations"
-    
+    static let AddPracticeFeedback: String = "/api/meditations"
 }

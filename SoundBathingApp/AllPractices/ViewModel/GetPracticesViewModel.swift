@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-// TODO: мб не подгружать сразу все отзывы?
 @MainActor
 class GetPracticesViewModel: ObservableObject {
     @Published var errorMessage: String? = nil

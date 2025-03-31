@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-public class GetPracticeFeedbacksViewModel : ObservableObject {
+public class FeedbacksViewModel : ObservableObject {
     // MARK: - Public properties
     @Published var feedbacks: [Feedback] = []
     @Published var errorMessage: String? = nil
@@ -27,10 +27,12 @@ public class GetPracticeFeedbacksViewModel : ObservableObject {
     }
     
     // MARK: - Public methods
+    
+    // MARK: GET methods
     func getPracticeFeedBacks(practiceId: String) async {
         let endPoint = "\(EndPoints.GetPracticeFeedbacks)/\(practiceId)/feedbacks"
         
-        let result: Result<[FeedbackDto], NetworkError> = await NetworkManager.shared.perfomeRequest(
+        let result: Result<[FeedbackResponseDto], NetworkError> = await NetworkManager.shared.perfomeRequest(
             endPoint: endPoint,
             method: .GET
         )
@@ -49,13 +51,35 @@ public class GetPracticeFeedbacksViewModel : ObservableObject {
         }
     }
     
-//    func getFeedbackAverageRating() -> Int {
-//        
-//    }
+    // MARK: POST methods
+    func addFeedback(practiceId: String, feedback: FeedbackRequestDto) async {
+        let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
+        
+        let body = try? JSONEncoder().encode(feedback)
+        
+        let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .POST,
+            body: body
+        )
+        
+        switch result {
+        case .success:
+            self.errorMessage = nil
+        case .failure(let error):
+            print(error)
+            switch error {
+            case .serverError(let message):
+                self.errorMessage = message
+            default:
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
     
     // MARK: - Private methods
     /// Преобразование ответа от сервера в модели отзывов
-    private func createFeedbacksModels(feedbacksDtos: [FeedbackDto]) async {
+    private func createFeedbacksModels(feedbacksDtos: [FeedbackResponseDto]) async {
         for feedbackDto in feedbacksDtos {
             guard !feedbacks.contains(where: { $0.id == feedbackDto.userId }) else {
                 continue

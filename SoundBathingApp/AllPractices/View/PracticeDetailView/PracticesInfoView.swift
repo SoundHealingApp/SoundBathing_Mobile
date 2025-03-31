@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct PracticesInfoView: View {
-    let practice: Practice
     @State private var animateHeart = false
     @StateObject var getPracticesViewModel: GetPracticesViewModel
+
+    let practice: Practice
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -108,7 +109,7 @@ struct PracticesInfoView: View {
 
 #Preview {
     PracticesInfoView(
-        practice: Practice(
+        getPracticesViewModel: GetPracticesViewModel(), practice: Practice(
             id: "123",
             title: "Walking Meditation: Gratitude in Motion",
             description: "Amet sit efficitur integer lorem libero, luctus cras ornare mattis amet, sed morbi molestie non in ornare vestibulum luctus mattis in et dui dui leo, dolor orci, sit efficitur non lectus amet, mattis Amet sit efficitur integer lorem libero, luctus cras ornare mattis amet, sed morbi molestie non in ornare vestibulum luctus mattis in et dui dui leo, dolor orci, sit efficitur non lectus amet, mattis",
@@ -118,7 +119,6 @@ struct PracticesInfoView: View {
             frequency: 2.3,
             feedbacks: [],
             isFavorite: false
-        ),
-        getPracticesViewModel: GetPracticesViewModel()
+        )
     )
 }

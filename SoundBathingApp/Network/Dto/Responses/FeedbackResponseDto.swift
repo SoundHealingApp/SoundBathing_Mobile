@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FeedbackDto: Codable {
+struct FeedbackResponseDto: Codable {
     var userId: String
     var meditationId: String
     var comment: String?

@@ -68,18 +68,3 @@ struct PreviewPracticeCell: View {
 #Preview {
     PracticesView()
 }
-//#Preview {
-//    PreviewPracticeCell(
-//        viewModel: GetPracticesViewModel(),
-//        practice: Practice(
-//            id: "id",
-//            title: "title",
-//            description: "dec",
-//            meditationType: MeditationCategory.daily,
-//            therapeuticPurpose: "ther",
-//            image: UIImage(systemName: "swift")!,
-//            feedbacks: [],
-//            isFavorite: false
-//        )
-//    )
-//}

@@ -10,17 +10,33 @@ import SwiftUI
 // TODO: не давать возможность оставить комментарий, если текущий пользователь - это администратор
 
 struct PracticeDetailsInfoView: View {
-    
     // MARK: - Properties
+    @State private var showingReviewForm = false
+    @State private var editingFeedback: Feedback?
+    @State private var showingDeleteAlert = false
+    @State private var feedbackToDelete: Feedback?
+    
+    @StateObject var feedbacksViewModel = FeedbacksViewModel()
+    
     let practice: Practice
     
-    @State private var showingReviewForm = false
-    @StateObject var feedbacksViewModel = GetPracticeFeedbacksViewModel()
+    // MARK: - Computed Properties
+    private var currentUserId: String? {
+        KeyChainManager.shared.getUserId()
+    }
     
-    // MARK: View
+    private var isAdmin: Bool {
+        // TODO: Реализовать проверку на администратора
+        false
+    }
+    
+    var userHasFeedback: Bool {
+        feedbacksViewModel.feedbacks.contains { $0.id == currentUserId }
+    }
+    
+    // MARK: - View
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            
             /// Терапевтическая цель + Частота
             HStack(alignment: .top) {
                 
@@ -82,12 +98,14 @@ struct PracticeDetailsInfoView: View {
                                 .foregroundColor(.secondary)
                         }
                         
-                        Button {
-                            showingReviewForm = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.blue)
+                        if !userHasFeedback && !isAdmin {
+                            Button {
+                                showingReviewForm = true
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.blue)
+                            }
                         }
                         
                         Spacer()
@@ -103,8 +121,15 @@ struct PracticeDetailsInfoView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
                             ForEach(feedbacksViewModel.feedbacks) { feedback in
-                                FeedbackCard(feedback: feedback)
-                                    .frame(width: 280, height: 100)
+                                FeedbackCard(
+                                    feedback: feedback,
+                                    onEdit: {editingFeedback = feedback},
+                                    onDelete: {
+                                        feedbackToDelete = feedback
+                                        showingDeleteAlert = true
+                                    }
+                                )
+                                .frame(width: 280, height: 100) // TODO: если нет коммента не делать широкой карточку
                             }
                         }
                         .padding(.vertical, 8)
@@ -135,7 +160,26 @@ struct PracticeDetailsInfoView: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 30)
         .sheet(isPresented: $showingReviewForm) {
-            AddFeedbackView()
+            FeedbackCreationView(
+                practiceId: practice.id,
+                viewModel: feedbacksViewModel)
+        }
+        .sheet(item: $editingFeedback) { feedback in
+            FeedbackCreationView(
+                practiceId: practice.id,
+                editingFeedback: feedback,
+                viewModel: feedbacksViewModel
+            )
+        }
+        .alert("Delete Review", isPresented: $showingDeleteAlert, presenting: feedbackToDelete) { feedback in
+            Button("Delete", role: .destructive) {
+                Task {
+                    // TODO: удаление практики
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("Are you sure you want to delete this review?")
         }
         .onAppear {
             Task {

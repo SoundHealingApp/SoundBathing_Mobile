@@ -103,6 +103,7 @@ struct RegisterView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                         withAnimation {
                             showErrorToast = false
+                            // TODO test: не нужно ли сбрасывать errorMessage тут?
                         }
                     }
                 }

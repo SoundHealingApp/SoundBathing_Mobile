@@ -26,7 +26,9 @@ struct PracticesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHGrid(rows: rows, spacing: 16) {
                                 ForEach(viewModel.practices.filter { $0.meditationType == MeditationCategory.daily }, id: \.id) { practice in
-                                    NavigationLink(destination: PracticesInfoView(practice: practice, getPracticesViewModel: viewModel)) {
+                                    NavigationLink(destination: PracticesInfoView(
+                                        getPracticesViewModel: viewModel,
+                                        practice: practice)) {
                                         PreviewPracticeCell(viewModel: viewModel, sizeCoefficient: 0.6, practice: practice)
                                             .contentShape(Rectangle())
                                     }
@@ -45,7 +47,9 @@ struct PracticesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHGrid(rows: rows, spacing: 16) {
                                 ForEach(viewModel.practices.filter { $0.meditationType == MeditationCategory.restorative }, id: \.id) { practice in
-                                    NavigationLink(destination: PracticesInfoView(practice: practice, getPracticesViewModel: viewModel)) {
+                                    NavigationLink(destination: PracticesInfoView(
+                                        getPracticesViewModel: viewModel,
+                                        practice: practice)) {
                                         PreviewPracticeCell(viewModel: viewModel, sizeCoefficient: 0.6, practice: practice)
                                             .contentShape(Rectangle())
                                     }
@@ -72,23 +76,13 @@ struct PracticesView: View {
             }
         }
         .onAppear {
-            print(f())
             Task {
                 await viewModel.getAllPractices()
             }
         }
     }
 }
-func f() {
-    for family in UIFont.familyNames.sorted() {
-        print("Family: \(family)")
-        
-        let fontNames = UIFont.fontNames(forFamilyName: family)
-        for fontName in fontNames {
-            print("    Font: \(fontName)")
-        }
-    }
-}
+
 #Preview {
     PracticesView()
 }

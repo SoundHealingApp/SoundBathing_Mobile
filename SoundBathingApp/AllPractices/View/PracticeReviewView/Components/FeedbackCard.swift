@@ -10,6 +10,8 @@ import SwiftUI
 /// Карточка отзывка
 struct FeedbackCard: View {
     let feedback: Feedback
+    var onEdit: (() -> Void)?
+    var onDelete: (() -> Void)?
     
     var isItCurrentUserFeedback: Bool {
         print(KeyChainManager.shared.getUserId()!)
@@ -38,6 +40,16 @@ struct FeedbackCard: View {
                                 .foregroundStyle(.orange)
                                 .font(.system(size: 12))
                         }
+                    }
+                }
+                
+                if isItCurrentUserFeedback {
+                    Menu {
+                        Button("Edit", action: { onEdit?() })
+                        Button("Delete", role: .destructive, action: { onDelete?() })
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .foregroundColor(.secondary)
                     }
                 }
             }
