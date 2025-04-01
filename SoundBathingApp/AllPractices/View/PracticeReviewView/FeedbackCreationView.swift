@@ -157,15 +157,24 @@ struct FeedbackCreationView: View {
             return
         }
         
-        let feedback = FeedbackRequestDto(
+        let feedback = AddFeedbackRequestDto(
             userId: userId,
             comment: comment,
             estimate: estimate)
     
         
         Task {
-            if isEditingMode, let feedbackId = editingFeedback?.id {
-                // TODO: Обновлять фидбжк
+            if isEditingMode {
+                let changeFeedbackRequestDto = ChangeFeedbackRequestDto(
+                    comment: comment,
+                    estimate: estimate
+                )
+                
+                await viewModel.changeFeedback(
+                    practiceId: practiceId,
+                    userId: userId,
+                    changeFeedbackRequest: changeFeedbackRequestDto)
+                
             } else {
                 await viewModel.addFeedback(
                     practiceId: practiceId,

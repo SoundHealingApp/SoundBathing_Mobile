@@ -21,8 +21,12 @@ struct PracticeDetailsInfoView: View {
     let practice: Practice
     
     // MARK: - Computed Properties
-    private var currentUserId: String? {
-        KeyChainManager.shared.getUserId()
+    private var currentUserId: String {
+        guard let userId = KeyChainManager.shared.getUserId() else {
+            feedbacksViewModel.errorMessage = "Something went wrong. Please re-authorise in the app."
+            return ""
+        }
+        return userId
     }
     
     private var isAdmin: Bool {
@@ -174,7 +178,9 @@ struct PracticeDetailsInfoView: View {
         .alert("Delete Review", isPresented: $showingDeleteAlert, presenting: feedbackToDelete) { feedback in
             Button("Delete", role: .destructive) {
                 Task {
-                    // TODO: удаление практики
+                    await feedbacksViewModel.deleteFeedback(
+                        practiceId: practice.id,
+                        userId: currentUserId)
                 }
             }
             Button("Cancel", role: .cancel) {}

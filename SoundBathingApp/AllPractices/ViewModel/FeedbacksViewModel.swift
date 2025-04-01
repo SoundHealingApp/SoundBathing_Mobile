@@ -52,7 +52,7 @@ public class FeedbacksViewModel : ObservableObject {
     }
     
     // MARK: POST methods
-    func addFeedback(practiceId: String, feedback: FeedbackRequestDto) async {
+    func addFeedback(practiceId: String, feedback: AddFeedbackRequestDto) async {
         let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
         
         let body = try? JSONEncoder().encode(feedback)
@@ -77,6 +77,68 @@ public class FeedbacksViewModel : ObservableObject {
         }
     }
     
+    // MARK: PUT methods
+    func changeFeedback(practiceId: String, userId: String, changeFeedbackRequest: ChangeFeedbackRequestDto) async {
+        let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
+        
+        let queryParameters = [
+            "userId": userId
+        ]
+        
+        let body = try? JSONEncoder().encode(changeFeedbackRequest)
+
+        
+        let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .PUT,
+            body: body,
+            queryParameters: queryParameters
+        )
+        
+        switch result {
+        case .success:
+            print("ok!")
+            self.errorMessage = nil
+        case .failure(let error):
+            print(error)
+            switch error {
+            case .serverError(let message):
+                self.errorMessage = message
+            default:
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    // MARK: Delete methods
+    func deleteFeedback(practiceId: String, userId: String) async {
+        let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
+        
+        let queryParameters = [
+            "userId": userId
+        ]
+        
+        
+        let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .DELETE,
+            queryParameters: queryParameters
+        )
+        
+        switch result {
+        case .success:
+            print("ok!")
+            self.errorMessage = nil
+        case .failure(let error):
+            print(error)
+            switch error {
+            case .serverError(let message):
+                self.errorMessage = message
+            default:
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
     // MARK: - Private methods
     /// Преобразование ответа от сервера в модели отзывов
     private func createFeedbacksModels(feedbacksDtos: [FeedbackResponseDto]) async {
