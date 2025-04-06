@@ -56,7 +56,7 @@ public class FeedbacksViewModel : ObservableObject {
         let newFeedback = Feedback(
             id: feedback.userId,
             meditationId: practiceId,
-            userName: "You", // TODO: брать имя
+            userName: UserDefaultsManager.shared.getUserName()!,
             comment: feedback.comment,
             estimate: feedback.estimate
         )
