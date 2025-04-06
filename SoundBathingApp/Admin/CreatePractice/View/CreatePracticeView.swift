@@ -23,7 +23,7 @@ struct CreateMeditationView: View {
             
     @State private var isShowingImagePicker: Bool = false
     @State private var isShowingAudioPicker: Bool = false
-    @Environment(Router.self) var router
+//    @Environment(Router.self) var router
     @State private var showErrorToast = false
 
     private var isPracticeCanBeCreated: Bool {
@@ -186,9 +186,9 @@ struct CreateMeditationView: View {
                 .navigationTitle("Create Practice")
                 .background(Color(.systemBackground).edgesIgnoringSafeArea(.all))
                 .onChange(of: viewModel.isSendSuccessfully) { _, newValue in
-                    if newValue {
-                        router.navigateToSwiftUIView()
-                    }
+//                    if newValue {
+//                        router.navigateToSwiftUIView()
+//                    }
                 }
                 .onChange(of: viewModel.errorMessage) { _, newValue in
                     if newValue != nil {

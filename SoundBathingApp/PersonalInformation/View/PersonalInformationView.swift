@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PersonalInformationView: View {
-    @StateObject var vm = PersonalInformationViewModel()
+    @ObservedObject var vm: PersonalInformationViewModel
 
     @State private var showDatePicker = false
     @State private var showSaveAlert = false
@@ -143,7 +143,7 @@ struct PersonalInformationView: View {
     }
 }
 #Preview {
-    PersonalInformationView()
+    PersonalInformationView(vm: PersonalInformationViewModel())
 }
 
 private struct CustomFieldView: View {
