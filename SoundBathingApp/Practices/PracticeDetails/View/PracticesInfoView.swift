@@ -107,18 +107,18 @@ struct PracticesInfoView: View {
     }
 }
 
-#Preview {
-    PracticesInfoView(
-        getPracticesViewModel: GetPracticesViewModel(), practice: Practice(
-            id: "123",
-            title: "Walking Meditation: Gratitude in Motion",
-            description: "Amet sit efficitur integer lorem libero, luctus cras ornare mattis amet, sed morbi molestie non in ornare vestibulum luctus mattis in et dui dui leo, dolor orci, sit efficitur non lectus amet, mattis Amet sit efficitur integer lorem libero, luctus cras ornare mattis amet, sed morbi molestie non in ornare vestibulum luctus mattis in et dui dui leo, dolor orci, sit efficitur non lectus amet, mattis",
-            meditationType: .daily,
-            therapeuticPurpose: "for health",
-            image: UIImage(systemName: "lock.document.fill")!,
-            frequency: 2.3,
-            feedbacks: [],
-            isFavorite: false
-        )
-    )
-}
+//#Preview {
+//    PracticesInfoView(
+//        getPracticesViewModel: GetPracticesViewModel(), practice: Practice(
+//            id: "123",
+//            title: "Walking Meditation: Gratitude in Motion",
+//            description: "Amet sit efficitur integer lorem libero, luctus cras ornare mattis amet, sed morbi molestie non in ornare vestibulum luctus mattis in et dui dui leo, dolor orci, sit efficitur non lectus amet, mattis Amet sit efficitur integer lorem libero, luctus cras ornare mattis amet, sed morbi molestie non in ornare vestibulum luctus mattis in et dui dui leo, dolor orci, sit efficitur non lectus amet, mattis",
+//            meditationType: .daily,
+//            therapeuticPurpose: "for health",
+//            image: UIImage(systemName: "lock.document.fill")!,
+//            frequency: 2.3,
+//            feedbacks: [],
+//            isFavorite: false
+//        )
+//    )
+//}

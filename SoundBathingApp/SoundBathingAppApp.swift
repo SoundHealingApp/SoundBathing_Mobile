@@ -11,13 +11,19 @@ import SwiftUI
 struct SoundBathingAppApp: App {
     var body: some Scene {
         WindowGroup {
-            PracticesView()
+            // TODO: проверка на срок действия токена
+            if KeyChainManager.shared.getToken() != nil {
+                MainView()
+                    .withRouter()
+            } else {
+               SignInView()
+                    .withRouter()
+            }
 //            CreateMeditationView()
 //            SignInView()
 //            BirthdateEnteringView()
 //            RegisterView()
 //            NameEnteringView()
-                .withRouter()
         }
     }
 }

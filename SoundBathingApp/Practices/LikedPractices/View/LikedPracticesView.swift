@@ -15,9 +15,11 @@ struct LikedPracticesView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVGrid(columns: columns) {
-                ForEach(Array(viewModel.likedPractices.filter { $0.isFavorite }), id: \.id) { practice in
+                ForEach(viewModel.practices.filter { $0.isFavorite }, id: \.id) { practice in
                     NavigationLink(
-                        destination: PracticesInfoView(getPracticesViewModel: viewModel, practice: practice)) {
+                        destination: PracticesInfoView(
+                            getPracticesViewModel: viewModel,
+                            practice: practice)) {
                         PreviewPracticeCell(viewModel: viewModel, sizeCoefficient: 0.45, practice: practice)
                     }
                     .buttonStyle(.plain)
@@ -26,14 +28,9 @@ struct LikedPracticesView: View {
         }
         .padding(.horizontal, 10)
         .navigationTitle("Favorites")
-        .onAppear {
-            Task {
-                viewModel.getLikedPractices()
-            }
-        }
     }
 }
 
-#Preview {
-    PracticesView()
-}
+//#Preview {
+//    PracticesView()
+//}

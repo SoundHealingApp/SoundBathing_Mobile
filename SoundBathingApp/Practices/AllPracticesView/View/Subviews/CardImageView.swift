@@ -17,6 +17,5 @@ struct CardImageView: View {
             .resizable()
             .scaledToFill()
             .frame(width: width, height: height)
-//            .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }

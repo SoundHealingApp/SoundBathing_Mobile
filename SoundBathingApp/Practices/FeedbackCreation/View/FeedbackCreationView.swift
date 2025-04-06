@@ -7,6 +7,7 @@
 
 import SwiftUI
 // TODO: на все вью добавить сообщение об ошибке
+
 /// Добавление и редактирование отзывов
 struct FeedbackCreationView: View {
     // MARK: - Properties
@@ -21,7 +22,7 @@ struct FeedbackCreationView: View {
     @Environment(\.dismiss) var dismiss
     
     var practiceId: String
-    let editingFeedback: Feedback?
+    @State var editingFeedback: Feedback?
     
     // MARK: - Computed properties
     var isEditingMode: Bool {

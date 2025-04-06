@@ -25,7 +25,7 @@ struct SectionHeader: View {
     }
 }
 
-#Preview {
-    PracticesView()
-//    SectionHeader(title: "Title")
-}
+//#Preview {
+//    PracticesView()
+////    SectionHeader(title: "Title")
+//}

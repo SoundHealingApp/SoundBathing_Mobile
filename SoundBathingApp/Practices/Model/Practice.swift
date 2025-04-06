@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+// TODO: добавить аудио
 struct Practice: Identifiable, Hashable {
     var id: String
     var title: String
@@ -16,6 +17,7 @@ struct Practice: Identifiable, Hashable {
     var therapeuticPurpose: String
     var rating: Double?
     var image: UIImage
+    var audio: Data
     var frequency: Double?
     var feedbacks: [Feedback]
     var isFavorite: Bool

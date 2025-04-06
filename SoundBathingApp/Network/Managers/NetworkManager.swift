@@ -126,6 +126,38 @@ class NetworkManager: NSObject, URLSessionDelegate {
         }
     }
     
+    // MARK: - Загрузка аудио
+    func downloadAudio(from endPoint: String) async -> Result<Data, NetworkError> {
+        guard let url = URL(string: "\(host)\(endPoint)") else {
+            return .failure(.invalidUrl)
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.GET.rawValue
+
+        if let token = KeyChainManager.shared.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+
+        do {
+            let (data, response) = try await session.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return .failure(.serverError("Invalid response"))
+            }
+
+            if (200...299).contains(httpResponse.statusCode) {
+                return .success(data)
+            } else {
+                return .failure(.serverError("Failed to download audio, status code: \(httpResponse.statusCode)"))
+            }
+        } catch {
+            return .failure(.networkError(error.localizedDescription))
+        }
+    }
+    
     // MARK: - Создание обычного запроса (JSON)
     private func createRequest(
         url: URL,

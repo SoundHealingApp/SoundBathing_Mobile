@@ -8,18 +8,6 @@
 import Foundation
 import UIKit
 
-//struct PracticeSongModel: Identifiable {
-//    var id = UUID()
-//    var title: String
-//    var description: String
-//    var meditationType: MeditationCategory
-//    var therapeuticPurpose: String
-//    var frequency: String?
-//    var data: Data
-//    var image: UIImage?
-//    var duration: TimeInterval
-//}
-
 enum MeditationCategory: String, CaseIterable, Identifiable, Codable {
     case daily = "Guided Daily Moments"
     case restorative = "Restorative Sound Bath"

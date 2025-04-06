@@ -53,6 +53,15 @@ public class FeedbacksViewModel : ObservableObject {
     
     // MARK: POST methods
     func addFeedback(practiceId: String, feedback: AddFeedbackRequestDto) async {
+        let newFeedback = Feedback(
+            id: feedback.userId,
+            meditationId: practiceId,
+            userName: "You", // TODO: брать имя
+            comment: feedback.comment,
+            estimate: feedback.estimate
+        )
+        feedbacks.append(newFeedback)
+        
         let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
         
         let body = try? JSONEncoder().encode(feedback)
@@ -79,6 +88,16 @@ public class FeedbacksViewModel : ObservableObject {
     
     // MARK: PUT methods
     func changeFeedback(practiceId: String, userId: String, changeFeedbackRequest: ChangeFeedbackRequestDto) async {
+        if let index = feedbacks.firstIndex(where: { $0.id == userId && $0.meditationId == practiceId }) {
+            // Создаем копию элемента с обновленными полями
+            var updatedFeedback = feedbacks[index]
+            updatedFeedback.comment = changeFeedbackRequest.comment
+            updatedFeedback.estimate = changeFeedbackRequest.estimate
+            
+            // Заменяем элемент в массиве
+            feedbacks[index] = updatedFeedback
+        }
+
         let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
         
         let queryParameters = [
@@ -112,12 +131,15 @@ public class FeedbacksViewModel : ObservableObject {
     
     // MARK: Delete methods
     func deleteFeedback(practiceId: String, userId: String) async {
+        feedbacks.removeAll {
+            $0.meditationId == practiceId && $0.id == userId
+        }
+
         let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
         
         let queryParameters = [
             "userId": userId
         ]
-        
         
         let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
             endPoint: endPoint,

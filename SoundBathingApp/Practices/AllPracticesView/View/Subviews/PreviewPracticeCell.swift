@@ -65,6 +65,3 @@ struct PreviewPracticeCell: View {
         .frame(width: UIScreen.main.bounds.width * sizeCoefficient, height: UIScreen.main.bounds.width * sizeCoefficient)
     }
 }
-#Preview {
-    PracticesView()
-}

@@ -19,7 +19,8 @@ class EndPoints {
     static let CreatePractice: String = "/api/meditations"
     static let GetPracticesByType: String = "/api/meditations/type"
     static let DownloadPracticeImage: String = "/api/meditations"
-    
+    static let DownloadPracticeAudio: String = "/api/meditations"
+
     // MARK: Practice's likes
     static let GetLikedPractices: String = "liked-meditations"
     

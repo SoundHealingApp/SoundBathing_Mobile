@@ -8,7 +8,7 @@
 import Foundation
 import SwiftKeychainWrapper
 
-// TODO: получение роли пользователя
+// TODO: получение роли пользователя, сохранение имени
 class KeyChainManager {
     static let shared = KeyChainManager()
     private let jwtTokenKey: String = "jwt_token"
