@@ -10,7 +10,7 @@ import SwiftUI
 /// Вью для звукового представления.
 struct PlayerView: View {
     @StateObject var vm = PlayerViewModel()
-    @State private var showFullPlayer = false
+    @State var showFullPlayer = false
     
     @Binding var audio: Data
     @Binding var image: UIImage?

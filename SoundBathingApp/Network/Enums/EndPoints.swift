@@ -14,6 +14,7 @@ class EndPoints {
     static let SignIn: String = "/auth/login"
     static let CheckUserExistence: String = "/auth/user"
     static let CreateUser: String = "/users"
+    static let ChangeUserData: String = "/users"
     
     // MARK: Practices
     static let CreatePractice: String = "/api/meditations"

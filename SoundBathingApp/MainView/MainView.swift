@@ -22,7 +22,7 @@ struct MainView: View {
                     case .likedPractices:
                         LikedPracticesView(viewModel: getPracticesViewModel)
                     case .profile:
-                        EmptyView()
+                        PersonalInformationView()
                     }
                 }
                 MainTabBarView(selectedTab: $selectedTab)

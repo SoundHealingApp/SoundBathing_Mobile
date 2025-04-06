@@ -160,28 +160,38 @@ struct PracticeDetailsInfoView: View {
             }
             .padding(.top, 10)
         
-            
-            /// Кнопка "Listen"
-            Button {
-                // TODO: добавить действие для прослушивания
-
-            } label: {
-                HStack {
-                    Image(systemName: "play.fill") // Иконка кнопки
-                    Text("Start Listening")
-                        .font(.system(size: 18, weight: .semibold))
+            if !showPlayer {
+                /// Кнопка "Listen"
+                Button {
+                    // TODO: добавить действие для прослушивания
+                    showPlayer = true
+                } label: {
+                    HStack {
+                        Image(systemName: "play.fill") // Иконка кнопки
+                        Text("Start Listening")
+                            .font(.system(size: 18, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .foregroundStyle(.white)
+                    .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .foregroundStyle(.white)
-                .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                .padding(.top, 20)
             }
-            .padding(.top, 20)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 30)
+        .navigationDestination(isPresented: $showPlayer, destination: {
+            PlayerView(
+                showFullPlayer: true, audio: .constant(practice.audio),
+                image: .constant(practice.image),
+                title: .constant(practice.title),
+                therapeuticPurpose: .constant(practice.therapeuticPurpose),
+                frequency: .constant("\(practice.frequency)")
+            )
+        })
         .sheet(isPresented: $showingReviewForm) {
             FeedbackCreationView(
                 practiceId: practice.id,

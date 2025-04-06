@@ -13,7 +13,7 @@ class UserDefaultsManager {
     static let userNameKey: String = "userEmail"
     static let userEmailKey: String = "userName"
     static let userSurnameKey: String = "userSurname"
-    
+    static let userEmojiKey: String = "userEmoji"
     static let birthDateKey: String = "userBirthDate"
     
     // MARK: - User email.
@@ -63,5 +63,16 @@ class UserDefaultsManager {
         }
         return nil
     }
-
+    
+    // MARK: - User emoji.
+    func saveUserEmoji(emoji: String) {
+        UserDefaults.standard.set(emoji, forKey: UserDefaultsManager.userEmojiKey)
+    }
+    
+    func getUserEmoji() -> String? {
+        if let emoji = UserDefaults.standard.string(forKey: UserDefaultsManager.userEmojiKey) {
+            return emoji
+        }
+        return nil
+    }
 }
