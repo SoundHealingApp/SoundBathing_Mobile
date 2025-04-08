@@ -189,7 +189,7 @@ struct PracticeDetailsInfoView: View {
                 image: .constant(practice.image),
                 title: .constant(practice.title),
                 therapeuticPurpose: .constant(practice.therapeuticPurpose),
-                frequency: .constant("\(practice.frequency)")
+                frequency: .constant(practice.frequency != nil ? String(format: "%.1f Hz", practice.frequency!) : "")
             )
         })
         .sheet(isPresented: $showingReviewForm) {

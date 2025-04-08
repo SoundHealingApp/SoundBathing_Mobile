@@ -7,6 +7,67 @@
 
 import SwiftUI
 import AVKit
+// TODO: улучшить дизайн
+// MARK: - Компоненты интерфейса
+
+struct ModernButton: View {
+    let icon: String
+    let text: String
+    let style: ButtonStyle
+    var isDisabled: Bool = false
+    let action: () -> Void
+    
+    enum ButtonStyle {
+        case primary, secondary
+        
+        var backgroundColor: Color {
+            switch self {
+            case .primary: return .indigo
+            case .secondary: return Color(.secondarySystemGroupedBackground)
+            }
+        }
+        
+        var foregroundColor: Color {
+            switch self {
+            case .primary: return .white
+            case .secondary: return .indigo
+            }
+        }
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                Text(text)
+                    .font(.subheadline.bold())
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(style.backgroundColor)
+                    .opacity(0.7)
+            )
+            .foregroundColor(
+                style.foregroundColor
+                    .opacity(isDisabled ? 0.7 : 1.0)
+            )
+            .contentShape(Rectangle())
+        }
+        .disabled(isDisabled)
+        .buttonStyle(.plain)
+    }
+}
+
+#Preview {
+    ModernButton(
+        icon: "play.fill",
+        text: "Предпросмотр",
+        style: .primary,
+        action: {  }
+    )
+}
 
 struct CreateMeditationView: View {
     @StateObject var viewModel = CreatePracticeViewModel()
@@ -20,7 +81,8 @@ struct CreateMeditationView: View {
     @State private var audio: Data? = nil
     @State private var duration: TimeInterval? = nil
     @State private var image: UIImage? = nil
-            
+    @State private var isShowingPlayerPreview = false
+
     @State private var isShowingImagePicker: Bool = false
     @State private var isShowingAudioPicker: Bool = false
 //    @Environment(Router.self) var router
@@ -70,72 +132,134 @@ struct CreateMeditationView: View {
                             .frame(height: 70)
                         
                         HStack {
-                            // Кнопка выбора звука
+//                            // Кнопка выбора звука
+//                            Button(action: {
+//                                isShowingAudioPicker = true
+//                            }) {
+//                                ZStack {
+//                                    RoundedRectangle(cornerRadius: 12)
+//                                        .fill(Color(.systemGray6))
+//                                        .frame(width: 150, height: 150)
+//                                        .overlay(
+//                                            RoundedRectangle(cornerRadius: 12)
+//                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+//                                        )
+//                                    
+//                                    VStack {
+//                                        if audio == nil {
+//                                            Image(systemName: "waveform")
+//                                                .font(.title)
+//                                                .foregroundColor(.gray)
+//                                            Text("Add audio")
+//                                                .font(.subheadline)
+//                                                .foregroundColor(.gray)
+//                                        } else {
+//                                            Image(systemName: "waveform")
+//                                                .font(.title)
+//                                                .foregroundColor(.green)
+//                                            Text("Change audio")
+//                                                .font(.subheadline)
+//                                                .foregroundColor(.gray)
+//                                        }
+//                                    }
+//                                }
+//                            }
                             Button(action: {
                                 isShowingAudioPicker = true
                             }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(.systemGray6))
-                                        .frame(width: 150, height: 150)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                        )
-                                    
-                                    VStack {
-                                        if audio == nil {
-                                            Image(systemName: "waveform")
-                                                .font(.title)
-                                                .foregroundColor(.gray)
-                                            Text("Add audio")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        } else {
-                                            Image(systemName: "waveform")
-                                                .font(.title)
-                                                .foregroundColor(.green)
-                                            Text("Change audio")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        }
+                                VStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(audio == nil ? Color(.systemGray5).opacity(0.25) : Color.indigo.opacity(0.15))
+                                            .frame(width: 64, height: 64)
+                                        
+                                        Image(systemName: "waveform")
+                                            .font(.title2)
+                                            .foregroundColor(audio == nil ? .gray : .indigo)
+                                            .symbolVariant(audio == nil ? .none : .fill)
                                     }
+                                    
+                                    Text(audio == nil ? "Add audio" : "Change audio")
+                                        .font(.system(size: 14, weight: .light))
+                                        .foregroundColor(audio == nil ? .gray : .primary)
+                                        .multilineTextAlignment(.center)
                                 }
+                                .frame(width: 150, height: 150)
+                                .background(Color(.secondarySystemGroupedBackground))
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(audio == nil ? Color.gray.opacity(0.2) : Color.indigo.opacity(0.5),
+                                        lineWidth: 1
+                                    )
+                                )
+                                .contentShape(Rectangle())
                             }
-                            
+                            .buttonStyle(.plain)
                             Spacer()
-                            
                             Button(action: {
                                 isShowingImagePicker = true
                             }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(.systemGray6))
-                                        .frame(width: 150, height: 150)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                        )
-                                    
-                                    VStack {
-                                        if image == nil {
-                                            Image(systemName: "photo")
-                                                .font(.title)
-                                                .foregroundColor(.gray)
-                                            Text("Add image")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        } else {
-                                            Image(systemName: "photo")
-                                                .font(.title)
-                                                .foregroundColor(.green)
-                                            Text("Change image")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        }
+                                VStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(image == nil ? Color(.systemGray5).opacity(0.25) : Color.indigo.opacity(0.15))
+                                            .frame(width: 64, height: 64)
+                                        
+                                        Image(systemName: "photo")
+                                            .font(.title2)
+                                            .foregroundColor(image == nil ? .gray : .indigo)
+                                            .symbolVariant(image == nil ? .none : .fill)
                                     }
+                                    
+                                    Text(image == nil ? "Add image" : "Change image")
+                                        .font(.system(size: 14, weight: .light))
+                                        .foregroundColor(image == nil ? .gray : .primary)
+                                        .multilineTextAlignment(.center)
                                 }
+                                .frame(width: 150, height: 150)
+                                .background(Color(.secondarySystemGroupedBackground))
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(image == nil ? Color.gray.opacity(0.2) : Color.indigo.opacity(0.5),
+                                        lineWidth: 1
+                                    )
+                                )
+                                .contentShape(Rectangle())
                             }
+                            .buttonStyle(.plain)
+//                            Button(action: {
+//                                isShowingImagePicker = true
+//                            }) {
+//                                ZStack {
+//                                    RoundedRectangle(cornerRadius: 12)
+//                                        .fill(Color(.systemGray6))
+//                                        .frame(width: 150, height: 150)
+//                                        .overlay(
+//                                            RoundedRectangle(cornerRadius: 12)
+//                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+//                                        )
+//                                    
+//                                    VStack {
+//                                        if image == nil {
+//                                            Image(systemName: "photo")
+//                                                .font(.title)
+//                                                .foregroundColor(.gray)
+//                                            Text("Add image")
+//                                                .font(.subheadline)
+//                                                .foregroundColor(.gray)
+//                                        } else {
+//                                            Image(systemName: "photo")
+//                                                .font(.title)
+//                                                .foregroundColor(.green)
+//                                            Text("Change image")
+//                                                .font(.subheadline)
+//                                                .foregroundColor(.gray)
+//                                        }
+//                                    }
+//                                }
+//                            }
                             
                             Spacer()
                         }
@@ -151,17 +275,13 @@ struct CreateMeditationView: View {
                                 NameFieldView(name: $frequency, placeholderName: "Frequency")
                             }
                             
-                            VStack {
-                                if isPracticeCanBeCreated {
-                                    PlayerView(
-                                        audio: .constant(audio!),
-                                        image: $image,
-                                        title: $title,
-                                        therapeuticPurpose: $therapeuticPurpose,
-                                        frequency: $frequency)
-                                    .padding()
-                                    .contentShape(Rectangle()) // Ограничиваем область нажатия
-                                }
+                            if isPracticeCanBeCreated {
+                                ModernButton(
+                                    icon: "play.fill",
+                                    text: "Listen",
+                                    style: .primary,
+                                    action: { isShowingPlayerPreview = true }
+                                )
                             }
                             
                             CustomButtonView(text: "Create", isDisabled: !isCreateButtonActive) {
@@ -209,7 +329,15 @@ struct CreateMeditationView: View {
                 .sheet(isPresented: $isShowingAudioPicker) {
                     ImportAudioManager(data: $audio, duration: $duration)
                 }
-                
+                .sheet(isPresented: $isShowingPlayerPreview) {
+                    PlayerView(
+                        audio: .constant(audio!),
+                        image: $image,
+                        title: $title,
+                        therapeuticPurpose: $therapeuticPurpose,
+                        frequency: $frequency
+                    )
+                }
                 
                 if viewModel.isLoading {
                     Color.black.opacity(0.4) // Затемнение фона
@@ -222,4 +350,8 @@ struct CreateMeditationView: View {
             }
         }
     }
+}
+
+#Preview {
+    CreateMeditationView()
 }
