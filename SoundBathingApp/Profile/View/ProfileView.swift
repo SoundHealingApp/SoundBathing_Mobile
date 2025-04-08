@@ -44,7 +44,7 @@ struct ProfileView: View {
         .navigationDestination(item: $selectedSection) { section in
             switch section {
             case .quotes:
-                EmptyView()
+                QuotesView()
             case .liveStreams:
                 EmptyView()
             case .practices:
@@ -97,37 +97,42 @@ struct ProfileView: View {
                 .font(.system(size: 12, weight: .semibold))
                 .kerning(1.5)
                 .foregroundColor(.gray)
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("""
+            QuoteCardView(quote: Quote(author: "Irina", text: """
                     "Mindfulness isn't difficult, \
                     we just need to remember to do it. Mindfulness isn't difficult, \
                     we just need to remember to do it."
-                    """)
-                    .font(.system(size: 18, weight: .medium))
-                    .lineSpacing(6)
-                    .foregroundColor(.white)
-                
-                HStack {
-                    Spacer()
-                    Text("- Sharon Salzberg")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                }
-            }
-            .padding(20)
-            .frame(maxWidth: .infinity)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.indigo, Color.purple]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .cornerRadius(16)
-            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 4)
+                    """))
+
+//            VStack(alignment: .leading, spacing: 12) {
+//                Text("""
+//                    "Mindfulness isn't difficult, \
+//                    we just need to remember to do it. Mindfulness isn't difficult, \
+//                    we just need to remember to do it."
+//                    """)
+//                    .font(.system(size: 18, weight: .medium))
+//                    .lineSpacing(6)
+//                    .foregroundColor(.white)
+//                
+//                HStack {
+//                    Spacer()
+//                    Text("- Sharon Salzberg")
+//                        .font(.system(size: 14, weight: .medium))
+//                        .foregroundColor(.white.opacity(0.7))
+//                }
+//            }
+//            .padding(20)
+//            .frame(maxWidth: .infinity)
+//            .background(
+//                LinearGradient(
+//                    gradient: Gradient(colors: [Color.indigo, Color.purple]),
+//                    startPoint: .topLeading,
+//                    endPoint: .bottomTrailing
+//                )
+//            )
+//            .cornerRadius(16)
+//            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 4)
         }
-        .padding(.vertical, 8)
+//        .padding(.vertical, 8)
     }
 }
 
