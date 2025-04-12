@@ -75,7 +75,9 @@ struct QuoteCreationView: View {
                         title: step == .author ? "Continue" : "Save",
                         isActive: isPrimaryButtonActive
                     ) {
-                        handlePrimaryAction()
+                        Task {
+                            await handlePrimaryAction()
+                        }
                     }
                     .disabled(!isPrimaryButtonActive)
                 }
@@ -111,7 +113,7 @@ struct QuoteCreationView: View {
         }
     }
     
-    private func handlePrimaryAction() {
+    private func handlePrimaryAction() async {
         switch step {
         case .author:
             withAnimation(.spring()) {
@@ -119,15 +121,17 @@ struct QuoteCreationView: View {
             }
             
         case .text:
-            let newQuote = Quote(author: author, text: text)
-            
             if let existing = editingQuote {
                 var updated = existing
                 updated.author = author
                 updated.text = text
-                viewModel.updateQuote(updated)
+                await viewModel.updateQuote(updatedQuote: updated)
             } else {
-                viewModel.addQuote(newQuote)
+                let createQuoteRequest = CreateQuoteRequestDto(
+                    text: text,
+                    author: author
+                )
+                await viewModel.addQuote(createQuoteRequest)
             }
             
             withAnimation(.spring()) {

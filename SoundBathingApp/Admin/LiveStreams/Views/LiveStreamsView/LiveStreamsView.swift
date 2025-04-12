@@ -1,59 +1,65 @@
 //
-//  QuotesView.swift
+//  LiveStreamsView.swift
 //  SoundBathingApp
 //
-//  Created by Ирина Печик on 08.04.2025.
+//  Created by Ирина Печик on 12.04.2025.
 //
 
 import SwiftUI
 
-struct QuotesView: View {
-    @StateObject private var viewModel = QuotesViewModel()
+struct LiveStreamsView: View {
+    @StateObject private var viewModel = LiveStreamViewModel()
     @State private var showDeleteConfirmation = false
-    @State private var quoteToDelete: Quote?
+    @State private var streamToDelete: LiveStream?
     @State private var scrollOffset: CGFloat = 0
     
     var body: some View {
         NavigationStack {
             ZStack {
-                if viewModel.quotes.isEmpty {
-                    /// Информация об отсутствии практик.
+                if viewModel.liveStreams.isEmpty {
                     VStack(spacing: 24) {
+                        /// Иконка камеры
                         ZStack {
                             Circle()
-                                .fill(LinearGradient(
-                                    colors: [.purple.opacity(0.1), .indigo.opacity(0.1)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ))
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.purple.opacity(0.1), .indigo.opacity(0.1)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .frame(width: 180, height: 180)
                             
-                            Image(systemName: "quote.bubble.fill")
+                            Image(systemName: "video.fill")
                                 .font(.system(size: 60))
                                 .foregroundStyle(LinearGradient(
                                     colors: [.purple, .indigo],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 ))
-                                .symbolEffect(.bounce, value: viewModel.quotes.isEmpty)
+                                /// Анимация при отсутствии стримов
+                                .symbolEffect(.bounce, value: viewModel.liveStreams.isEmpty)
                         }
                         
+                        /// Текст о том, что практики отсутсвуют
                         VStack(spacing: 12) {
-                            Text("No Quotes Yet")
+                            Text("No Live Streams Yet")
                                 .font(.system(.title2, design: .rounded).bold())
                                 .foregroundColor(.primary)
                             
-                            Text("Add your first inspirational quote to get started")
+                            Text("Add your first live stream to get started")
                                 .font(.system(.subheadline, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
                         }
                         
-                        Button(action: { viewModel.showingAddQuote = true }) {
+                        Button {
+                            viewModel.showingAddStream = true
+                        } label: {
                             HStack {
                                 Image(systemName: "plus")
-                                Text("Add Quote")
+                                Text("Add Stream")
                             }
                             .font(.system(.headline, design: .rounded))
                             .padding(.horizontal, 32)
@@ -72,9 +78,9 @@ struct QuotesView: View {
                         .buttonStyle(ScaleButtonStyle())
                     }
                     .padding()
+                    /// Плавное появление/исчезновение
                     .transition(.scale.combined(with: .opacity))
                 } else {
-                    /// Параллакс-эффект
                     ScrollView {
                         GeometryReader { proxy in
                             Color.clear
@@ -83,8 +89,8 @@ struct QuotesView: View {
                         .frame(height: 0)
                         
                         LazyVStack(spacing: 20) {
-                            ForEach(viewModel.quotes) { quote in
-                                QuoteCardView(quote: quote)
+                            ForEach(viewModel.liveStreams) { stream in
+                                LiveStreamCardView(stream: stream)
                                     .rotation3DEffect(
                                         .degrees(scrollOffset * 0.05),
                                         axis: (x: 1, y: 0, z: 0),
@@ -92,13 +98,13 @@ struct QuotesView: View {
                                     )
                                     .contextMenu {
                                         Button {
-                                            viewModel.editingQuote = quote
+                                            viewModel.editingStream = stream
                                         } label: {
                                             Label("Edit", systemImage: "pencil")
                                         }
                                         
                                         Button(role: .destructive) {
-                                            quoteToDelete = quote
+                                            streamToDelete = stream
                                             showDeleteConfirmation = true
                                         } label: {
                                             Label("Delete", systemImage: "trash")
@@ -124,12 +130,12 @@ struct QuotesView: View {
                     }
                 }
             }
-            .navigationTitle("Quotes")
+            .navigationTitle("Live Streams")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        viewModel.showingAddQuote = true
+                        viewModel.showingAddStream = true
                     } label: {
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
@@ -139,32 +145,33 @@ struct QuotesView: View {
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ))
-                            .symbolEffect(.bounce, value: viewModel.showingAddQuote)
+                            .symbolEffect(.bounce, value: viewModel.showingAddStream)
                     }
                 }
             }
             .onAppear {
-                Task {
-                    await viewModel.getAllQuotes()
-                }
+//                Task {
+//                    await viewModel.getAllStreams()
+//                }
             }
-            .sheet(isPresented: $viewModel.showingAddQuote) {
-                QuoteCreationView()
+            .sheet(isPresented: $viewModel.showingAddStream) {
+                LiveStreamCreationView()
                     .environmentObject(viewModel)
             }
-            .sheet(item: $viewModel.editingQuote) { quote in
-                QuoteCreationView(quote: quote)
+            .sheet(item: $viewModel.editingStream) { stream in
+                LiveStreamCreationView(stream: stream)
                     .environmentObject(viewModel)
             }
-            .alert("Delete Quote?", isPresented: $showDeleteConfirmation, presenting: quoteToDelete) { quote in
+            .alert("Delete Stream?", isPresented: $showDeleteConfirmation, presenting: streamToDelete) { stream in
                 Button("Delete", role: .destructive) {
                     Task {
-                        await viewModel.deleteQuote(id: quote.id)
+                        viewModel.deleteStream(stream)
+//                        await viewModel.deleteStream(id: stream.id)
                     }
                 }
                 Button("Cancel", role: .cancel) {}
             } message: { _ in
-                Text("This quote will be permanently deleted.")
+                Text("This stream will be permanently deleted.")
             }
         }
     }
@@ -179,5 +186,5 @@ private struct ScrollOffsetKey: PreferenceKey {
 }
 
 #Preview {
-    QuotesView()
+    LiveStreamsView()
 }

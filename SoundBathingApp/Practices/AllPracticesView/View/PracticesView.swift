@@ -15,9 +15,17 @@ struct PracticesView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                // TODO: Отображение ближайшего стрима
                 // TODO: Отображение рекомендованных практик
-
+                LiveStreamAnnouncementView(stream:             LiveStream(
+                    id: "1",
+                    title: "Evening Sound Bath Meditation",
+                    description: "Join us for a 45-minute deep relaxation session with Tibetan singing bowls and gong vibrations to help you unwind before sleep.",
+                    therapeuticPurpose: "Sleep Improvement",
+                    startDateTime: Date().addingTimeInterval(3600 * 3),
+                    // Через 3 часа
+                    youTubeUrl: "https://www.youtube.com/watch?v=Xc4D2uIdWc0"
+                )
+)
                 /// Guided Daily Moments
                 if !viewModel.practices.filter({$0.meditationType == MeditationCategory.daily}).isEmpty {
                     
@@ -76,4 +84,8 @@ struct PracticesView: View {
             }
         }
     }
+}
+
+#Preview {
+    PracticesView(viewModel: GetPracticesViewModel())
 }

@@ -11,6 +11,13 @@ import SwiftUI
 // 2) Сменить язык
 struct ProfileView: View {
     @State private var selectedSection: ProfileSection? = nil
+    @StateObject private var quotesViewModel = QuotesViewModel()
+    @State private var randomQuote: Quote = Quote(
+        id: UUID().uuidString,
+        author: "Anonymous",
+        text: "Don’t compare someone’s middle to your beginning."
+    )
+    
 //    @EnvironmentObject var authService: AuthService // Сервис для проверки роли
 
     enum ProfileSection {
@@ -46,7 +53,7 @@ struct ProfileView: View {
             case .quotes:
                 QuotesView()
             case .liveStreams:
-                EmptyView()
+                LiveStreamsView()
             case .practices:
                 CreateMeditationView()
             }
@@ -97,42 +104,18 @@ struct ProfileView: View {
                 .font(.system(size: 12, weight: .semibold))
                 .kerning(1.5)
                 .foregroundColor(.gray)
-            QuoteCardView(quote: Quote(author: "Irina", text: """
-                    "Mindfulness isn't difficult, \
-                    we just need to remember to do it. Mindfulness isn't difficult, \
-                    we just need to remember to do it."
-                    """))
-
-//            VStack(alignment: .leading, spacing: 12) {
-//                Text("""
-//                    "Mindfulness isn't difficult, \
-//                    we just need to remember to do it. Mindfulness isn't difficult, \
-//                    we just need to remember to do it."
-//                    """)
-//                    .font(.system(size: 18, weight: .medium))
-//                    .lineSpacing(6)
-//                    .foregroundColor(.white)
-//                
-//                HStack {
-//                    Spacer()
-//                    Text("- Sharon Salzberg")
-//                        .font(.system(size: 14, weight: .medium))
-//                        .foregroundColor(.white.opacity(0.7))
-//                }
-//            }
-//            .padding(20)
-//            .frame(maxWidth: .infinity)
-//            .background(
-//                LinearGradient(
-//                    gradient: Gradient(colors: [Color.indigo, Color.purple]),
-//                    startPoint: .topLeading,
-//                    endPoint: .bottomTrailing
-//                )
-//            )
-//            .cornerRadius(16)
-//            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 4)
+            
+            QuoteCardView(quote: randomQuote)
         }
-//        .padding(.vertical, 8)
+        .onAppear {
+            Task {
+                randomQuote = await quotesViewModel.getDailyRandomQuote() ?? Quote(
+                    id: UUID().uuidString,
+                    author: "Anonymous",
+                    text: "Don’t compare someone’s middle to your beginning."
+                )
+            }
+        }
     }
 }
 

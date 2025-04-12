@@ -18,7 +18,6 @@ struct QuoteCardView: View {
         let gradients = [
             [Color(#colorLiteral(red: 0.4, green: 0.3, blue: 0.8, alpha: 1)), Color(#colorLiteral(red: 0.3, green: 0.2, blue: 0.6, alpha: 1))],
             [Color(#colorLiteral(red: 0.2, green: 0.5, blue: 0.8, alpha: 1)), Color(#colorLiteral(red: 0.1, green: 0.3, blue: 0.6, alpha: 1))],
-            [Color(#colorLiteral(red: 0.8, green: 0.2, blue: 0.4, alpha: 1)), Color(#colorLiteral(red: 0.6, green: 0.1, blue: 0.3, alpha: 1))]
         ]
         let randomGradient = gradients.randomElement() ?? gradients[0]
         return LinearGradient(
@@ -161,5 +160,5 @@ struct ActivityView: UIViewControllerRepresentable {
 }
 
 #Preview {
-    QuoteCardView(quote: Quote(author: "author", text: "text"))
+    QuoteCardView(quote: Quote(id: "1", author: "author", text: "text"))
 }

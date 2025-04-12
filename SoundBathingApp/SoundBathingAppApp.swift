@@ -9,10 +9,26 @@ import SwiftUI
 
 @main
 struct SoundBathingAppApp: App {
+//    @AppStorage("hasShownWelcome") var hasShownWelcome = false
+    @State private var showMainView = false
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .withRouter()
+            if showMainView {
+                MainView()
+            } else {
+                WelcomeQuoteView(showMainView: $showMainView)
+            }
+//            ContentView()
+
+//            if !hasShownWelcome {
+//                WelcomeQuoteView()
+//                    .onDisappear {
+//                        hasShownWelcome = true
+//                    }
+//            } else {
+//                MainView()
+//                    .withRouter()
+//            }
             // TODO: проверка на срок действия токена
 //            if KeyChainManager.shared.getToken() != nil {
 //                MainView()

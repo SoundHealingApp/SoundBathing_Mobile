@@ -10,12 +10,16 @@ import Foundation
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     
+    // MARK: User keys
     static let userNameKey: String = "userEmail"
     static let userEmailKey: String = "userName"
     static let userSurnameKey: String = "userSurname"
     static let userEmojiKey: String = "userEmoji"
     static let birthDateKey: String = "userBirthDate"
     
+    // MARK: Quote
+    private let nextUpdateQuoteDateKey = "nextUpdateQuoteDate"
+    private let savedQuoteKey = "currentDailyQuote"
     // MARK: - User email.
     func saveUserEmail(email: String) {
         UserDefaults.standard.set(email, forKey: UserDefaultsManager.userEmailKey)
@@ -75,4 +79,33 @@ class UserDefaultsManager {
         }
         return nil
     }
+    
+    // MARK: - Quotes.
+    
+    /// Сохраняет дату следующего дня как дату обновления
+    func saveNextQuoteUpdateDate() {
+        let calendar = Calendar.current
+        if let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date()) {
+            UserDefaults.standard.set(tomorrow, forKey: nextUpdateQuoteDateKey)
+        }
+    }
+
+    /// Получает дату следующего обновления цитаты
+    func getNextQuoteUpdateDate() -> Date? {
+        return UserDefaults.standard.object(forKey: nextUpdateQuoteDateKey) as? Date
+    }
+    
+    func saveCurrentDailyQuote(_ quote: Quote) {
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(quote) {
+            UserDefaults.standard.set(data, forKey: savedQuoteKey)
+        }
+    }
+
+    func getCurrentDailyQuote() -> Quote? {
+        guard let data = UserDefaults.standard.data(forKey: savedQuoteKey) else { return nil }
+        let decoder = JSONDecoder()
+        return try? decoder.decode(Quote.self, from: data)
+    }
+    
 }

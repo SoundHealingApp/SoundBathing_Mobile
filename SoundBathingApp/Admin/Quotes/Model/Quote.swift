@@ -8,11 +8,11 @@
 import Foundation
 
 struct Quote: Identifiable, Codable, Equatable {
-    let id: UUID
+    let id: String
     var author: String
     var text: String
     
-    init(id: UUID = UUID(), author: String, text: String) {
+    init(id: String, author: String, text: String) {
         self.id = id
         self.author = author
         self.text = text

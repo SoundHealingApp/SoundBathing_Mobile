@@ -89,6 +89,9 @@ struct PlayerView: View {
                 vm.updateProgress()
             }
         }
+        .onDisappear {
+            vm.stopAudio()
+        }
     }
     
     @ViewBuilder
@@ -154,7 +157,7 @@ struct PlayerView: View {
                         .cornerRadius(isCompact ? 16 : 0)
                         .padding(isCompact ? 16 : 0)
                 )
-//                .edgesIgnoringSafeArea(.all)
+                .edgesIgnoringSafeArea(.all)
         }
 //        else {
 //            Image(systemName: "music.note")

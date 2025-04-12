@@ -28,4 +28,12 @@ class EndPoints {
     // MARK: Practice's feedbacks
     static let GetPracticeFeedbacks: String = "/api/meditations"
     static let AddPracticeFeedback: String = "/api/meditations"
+    
+    // MARK: Quotes
+    static let CreateQuote: String = "/api/quotes"
+    static let GetQuotes: String = "/api/quotes"
+    static let GetRandomQuote: String = "/api/quotes/random"
+    static let UpdateQuote: String = "/api/quotes"
+    static let DeleteQuote: String = "/api/quotes"
+
 }

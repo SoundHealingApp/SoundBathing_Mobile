@@ -33,6 +33,11 @@ class PlayerViewModel: ObservableObject {
         isPlaying.toggle()
     }
     
+    func stopAudio() {
+        self.audionPlayer?.pause()
+        isPlaying = false
+    }
+    
     func seekAudio(time: TimeInterval) {
         audionPlayer?.currentTime = time
     }
