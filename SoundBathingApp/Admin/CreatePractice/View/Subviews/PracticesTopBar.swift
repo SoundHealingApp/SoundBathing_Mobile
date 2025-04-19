@@ -17,7 +17,7 @@ struct PracticesTopBar: View {
                     selectedTopBar = .daily
                 } label: {
                     HStack {
-                        Image(systemName: "apple.meditate")
+                        Image(systemName: "sun.max")
                         VStack(alignment: .leading) {
                             Text("Guided daily")
                                 .font(.custom("Lora-Regular", size: 15))
@@ -64,4 +64,8 @@ struct PracticesTopBar: View {
             .padding(.horizontal, 16) // Отступы по краям
         }
     }
+}
+
+#Preview {
+    PracticesTopBar(selectedTopBar: .constant(.daily))
 }
