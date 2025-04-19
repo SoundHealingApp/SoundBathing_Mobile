@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecommendationsView: View {
     @EnvironmentObject var viewModel: GetPracticesViewModel
+    @EnvironmentObject var appViewModel: AppViewModel
 
     @State private var selectedRecommendation: Practice?
     @State private var isLoadingButton = false
@@ -111,6 +112,22 @@ struct RecommendationsView: View {
                     }
                 }
                 .padding(.bottom, 40)
+            }
+        }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                BackButtonView()
+                    .padding(.leading, 10)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Next") {
+                    appViewModel.didCompleteSurvey()
+                }
+                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.6))
             }
         }
         .navigationDestination(item: $selectedPracticeToPlay) { practice in

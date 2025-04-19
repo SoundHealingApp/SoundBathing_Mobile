@@ -10,6 +10,7 @@ import CoreMotion
 
 struct MeditationSurveyView: View {
     @EnvironmentObject var practicesVM: GetPracticesViewModel
+    @EnvironmentObject var appViewModel: AppViewModel
 
     @State private var showRecommendations = false
     @State private var activeCard: String? = nil
@@ -118,6 +119,15 @@ struct MeditationSurveyView: View {
                         .buttonStyle(ScaleButtonStyle())
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Skip") {
+                        appViewModel.skipSurveyAndRecommendations()
+                    }
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
                 }
             }
             .navigationDestination(isPresented: $showRecommendations) {
