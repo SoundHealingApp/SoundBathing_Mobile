@@ -75,5 +75,5 @@ struct VibratingWaveBackgroundView: View {
 }
 
 #Preview {
-    WelcomeQuoteView(showMainView: .constant(false))
+    WelcomeQuoteView(showMainView: .constant(false), showSurveyView: .constant(false))
 }

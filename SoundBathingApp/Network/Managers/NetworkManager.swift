@@ -17,7 +17,7 @@ class NetworkManager: NSObject, URLSessionDelegate {
         endPoint: String,
         method: HttpMethods,
         body: Data? = nil,
-        queryParameters: [String: String]? = nil,
+        queryParameters: [String: Any]? = nil,
         multipartFormData: MultipartFormData? = nil) async -> Result<T, NetworkError>
     {
         guard let url = URL(string: "\(host)\(endPoint)") else {
@@ -163,16 +163,15 @@ class NetworkManager: NSObject, URLSessionDelegate {
         url: URL,
         method: HttpMethods,
         body: Data? = nil,
-        queryParameters: [String: String]? = nil) -> URLRequest {
+        queryParameters: [String: Any]? = nil) -> URLRequest {
         // Создаем компоненты URL для добавления query-параметров
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
             
         // Добавляем query-параметры, если они есть
         if let queryParameters = queryParameters {
-            urlComponents?.queryItems = queryParameters.map { key, value in
-                URLQueryItem(name: key, value: value)
-            }
+            urlComponents?.queryItems = createQueryItems(from: queryParameters)
         }
+            
         // Получаем итоговый URL с query-параметрами
         guard let finalURL = urlComponents?.url else {
             fatalError("Failed to create URL with query parameters")
@@ -195,6 +194,32 @@ class NetworkManager: NSObject, URLSessionDelegate {
         }
         
         return request
+    }
+    
+    private func createQueryItems(from parameters: [String: Any])  -> [URLQueryItem] {
+        var queryItems = [URLQueryItem]()
+        
+        for (key, value) in parameters {
+            if let stringValue = value as? String {
+                queryItems.append(URLQueryItem(name: key, value: stringValue))
+            }
+            else if let arrayValue = value as? [String] {
+                // Для массива добавляем несколько параметров с одним ключом
+                arrayValue.forEach {
+                    queryItems.append(URLQueryItem(name: key, value: $0))
+                }
+            }
+            else if let dictValue = value as? [String: [String]] {
+                // Для словаря с массивами
+                for (subKey, subArray) in dictValue {
+                    subArray.forEach {
+                        queryItems.append(URLQueryItem(name: "\(key)[\(subKey)]", value: $0))
+                    }
+                }
+            }
+        }
+        
+        return queryItems
     }
     
     // MARK: - Создание multipart/form-data запроса

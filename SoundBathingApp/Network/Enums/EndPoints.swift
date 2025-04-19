@@ -36,4 +36,15 @@ class EndPoints {
     static let UpdateQuote: String = "/api/quotes"
     static let DeleteQuote: String = "/api/quotes"
 
+    // MARK: Live Streams
+    static let CreateLiveStream: String = "/api/livestreams"
+    static let GetUpcomingLiveStreams: String = "/api/livestreams/upcoming"
+    static let GetPastLiveStreams: String = "/api/livestreams/past"
+    static let UpdateLiveStream: String = "/api/livestreams"
+    static let DeleteLiveStream: String = "/api/livestreams"
+    
+    // MARK: Recommended practices
+    static let AddPracticesToRecommended: String = "/api/users"
+    static let GetRecommendedPractices: String = "/api/users"
+
 }

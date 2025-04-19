@@ -15,12 +15,16 @@ class PlayerViewModel: ObservableObject {
     @Published var totalTime: TimeInterval = 0.0
     
     // MARK: - Methods
-    func getAudioInfo(song: Data) {
-        do {
-            self.audionPlayer = try AVAudioPlayer(data: song)
-            totalTime = audionPlayer?.duration ?? 0.0
-        } catch {
-            print("Error while getting audio info")
+    func getAudioInfo(song: Data?) {
+        if let song = song {
+            do {
+                self.audionPlayer = try AVAudioPlayer(data: song)
+                totalTime = audionPlayer?.duration ?? 0.0
+            } catch {
+                print("Error while getting audio info")
+            }
+        } else {
+            print("Error while getting audio")
         }
     }
     

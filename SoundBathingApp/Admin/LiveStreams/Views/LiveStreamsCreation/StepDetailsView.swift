@@ -13,7 +13,6 @@ struct StepDetailsView: View {
     
     @FocusState private var isPurposeFocused: Bool
 
-    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {

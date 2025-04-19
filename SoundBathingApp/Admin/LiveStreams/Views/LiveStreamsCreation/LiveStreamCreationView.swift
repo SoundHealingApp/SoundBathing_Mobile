@@ -140,10 +140,9 @@ struct LiveStreamCreationView: View {
                 updated.startDateTime = startDateTime
                 updated.youTubeUrl = youTubeUrl
                 
-                viewModel.updateStream(updated)
-    //                    await viewModel.updateStream(updatedStream: updated)
+                await viewModel.updateStream(updatedStream: updated)
             } else {
-                viewModel.addStream(
+                await viewModel.addStream(
                     LiveStream(
                         id: UUID().uuidString,
                         title: title,
@@ -153,14 +152,7 @@ struct LiveStreamCreationView: View {
                         youTubeUrl: youTubeUrl
                     )
                 )
-    //                    let createStreamRequest = CreateLiveStreamRequestDto(
-    //                        title: title,
-    //                        description: description,
-    //                        therapeuticPurpose: therapeuticPurpose,
-    //                        startDateTime: startDateTime,
-    //                        youTubeUrl: youTubeUrl
-    //                    )
-    //                    await viewModel.addStream(createStreamRequest)
+
             }
             
             withAnimation(.spring()) {

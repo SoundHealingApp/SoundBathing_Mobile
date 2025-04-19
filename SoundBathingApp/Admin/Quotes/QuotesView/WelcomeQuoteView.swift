@@ -9,6 +9,7 @@ import SwiftUI
 
 struct WelcomeQuoteView: View {
     @Binding var showMainView: Bool
+    @Binding var showSurveyView: Bool
 
     @State private var isAnimating = false
     @State private var showUI = false
@@ -25,7 +26,10 @@ struct WelcomeQuoteView: View {
     var body: some View {
         ZStack {
             /// Вибрирующий фон
-            VibratingWaveBackgroundView()
+            DynamicBackground()
+                .ignoresSafeArea()
+                .blur(radius: 20)
+//            VibratingWaveBackgroundView()
 
             VStack {
                 Spacer()
@@ -35,7 +39,7 @@ struct WelcomeQuoteView: View {
                     Text(quote.text)
                         .font(.system(.title, design: .rounded))
                         .fontWeight(.medium)
-                        .foregroundColor(.black.opacity(0.8))
+                        .foregroundColor(.white.opacity(0.8))
                         .opacity(showUI ? 1 : 0)
                         .offset(y: showUI ? 0 : 20)
                         .animation(.easeOut(duration: 0.6).delay(0.3), value: showUI)
@@ -44,7 +48,7 @@ struct WelcomeQuoteView: View {
                     Text("- \(quote.author)")
                         .font(.system(.title3, design: .rounded))
                         .fontWeight(.light)
-                        .foregroundColor(.black.opacity(0.8))
+                        .foregroundColor(.white.opacity(0.8))
                         .padding(.top, 10)
                         .opacity(showUI ? 1 : 0)
                         .offset(y: showUI ? 0 : 20)
@@ -70,12 +74,12 @@ struct WelcomeQuoteView: View {
                         Image(systemName: "arrow.right")
                     }
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                     .padding(.horizontal, 36)
                     .padding(.vertical, 16)
                     .background(
                         Capsule()
-                            .fill(Color.black.opacity(0.8))
+                            .fill(Color.white.opacity(0.8))
                             .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
                     )
                 }
@@ -121,10 +125,11 @@ struct WelcomeQuoteView: View {
     
     private func dismissAfterAnimation() {
         withAnimation(.easeOut(duration: 0.3)) {
-            showMainView = true
+//            showMainView = true
+            showSurveyView = true
         }
     }
 }
 #Preview {
-    WelcomeQuoteView(showMainView: .constant(false))
+    WelcomeQuoteView(showMainView: .constant(false), showSurveyView: .constant(true))
 }

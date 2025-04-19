@@ -43,27 +43,22 @@ struct ModernButton: View {
                     .font(.subheadline.bold())
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(style.backgroundColor)
-                    .opacity(0.7)
-            )
-            .foregroundColor(
-                style.foregroundColor
-                    .opacity(isDisabled ? 0.7 : 1.0)
-            )
-            .contentShape(Rectangle())
+            .frame(height: 56)
+            .foregroundStyle(.white)
+            .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
         }
         .disabled(isDisabled)
         .buttonStyle(.plain)
     }
 }
 
+
 #Preview {
     ModernButton(
         icon: "play.fill",
-        text: "Предпросмотр",
+        text: "Play",
         style: .primary,
         action: {  }
     )
@@ -85,7 +80,6 @@ struct CreateMeditationView: View {
 
     @State private var isShowingImagePicker: Bool = false
     @State private var isShowingAudioPicker: Bool = false
-//    @Environment(Router.self) var router
     @State private var showErrorToast = false
 
     private var isPracticeCanBeCreated: Bool {
@@ -110,7 +104,7 @@ struct CreateMeditationView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -129,41 +123,8 @@ struct CreateMeditationView: View {
                         }
                         
                         PracticesTopBar(selectedTopBar: $selectedPracticeType)
-                            .frame(height: 70)
                         
                         HStack {
-//                            // Кнопка выбора звука
-//                            Button(action: {
-//                                isShowingAudioPicker = true
-//                            }) {
-//                                ZStack {
-//                                    RoundedRectangle(cornerRadius: 12)
-//                                        .fill(Color(.systemGray6))
-//                                        .frame(width: 150, height: 150)
-//                                        .overlay(
-//                                            RoundedRectangle(cornerRadius: 12)
-//                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-//                                        )
-//                                    
-//                                    VStack {
-//                                        if audio == nil {
-//                                            Image(systemName: "waveform")
-//                                                .font(.title)
-//                                                .foregroundColor(.gray)
-//                                            Text("Add audio")
-//                                                .font(.subheadline)
-//                                                .foregroundColor(.gray)
-//                                        } else {
-//                                            Image(systemName: "waveform")
-//                                                .font(.title)
-//                                                .foregroundColor(.green)
-//                                            Text("Change audio")
-//                                                .font(.subheadline)
-//                                                .foregroundColor(.gray)
-//                                        }
-//                                    }
-//                                }
-//                            }
                             Button(action: {
                                 isShowingAudioPicker = true
                             }) {
@@ -180,7 +141,7 @@ struct CreateMeditationView: View {
                                     }
                                     
                                     Text(audio == nil ? "Add audio" : "Change audio")
-                                        .font(.system(size: 14, weight: .light))
+                                        .font(.custom(CustomFonts.MarcellusRegular.rawValue, size: 14))
                                         .foregroundColor(audio == nil ? .gray : .primary)
                                         .multilineTextAlignment(.center)
                                 }
@@ -213,8 +174,7 @@ struct CreateMeditationView: View {
                                     }
                                     
                                     Text(image == nil ? "Add image" : "Change image")
-                                        .font(.system(size: 14, weight: .light))
-                                        .foregroundColor(image == nil ? .gray : .primary)
+                                        .font(.custom(CustomFonts.MarcellusRegular.rawValue, size: 14))                                        .foregroundColor(image == nil ? .gray : .primary)
                                         .multilineTextAlignment(.center)
                                 }
                                 .frame(width: 150, height: 150)
@@ -229,37 +189,6 @@ struct CreateMeditationView: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-//                            Button(action: {
-//                                isShowingImagePicker = true
-//                            }) {
-//                                ZStack {
-//                                    RoundedRectangle(cornerRadius: 12)
-//                                        .fill(Color(.systemGray6))
-//                                        .frame(width: 150, height: 150)
-//                                        .overlay(
-//                                            RoundedRectangle(cornerRadius: 12)
-//                                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-//                                        )
-//                                    
-//                                    VStack {
-//                                        if image == nil {
-//                                            Image(systemName: "photo")
-//                                                .font(.title)
-//                                                .foregroundColor(.gray)
-//                                            Text("Add image")
-//                                                .font(.subheadline)
-//                                                .foregroundColor(.gray)
-//                                        } else {
-//                                            Image(systemName: "photo")
-//                                                .font(.title)
-//                                                .foregroundColor(.green)
-//                                            Text("Change image")
-//                                                .font(.subheadline)
-//                                                .foregroundColor(.gray)
-//                                        }
-//                                    }
-//                                }
-//                            }
                             
                             Spacer()
                         }
@@ -303,41 +232,6 @@ struct CreateMeditationView: View {
                     }
                     .padding(.vertical)
                 }
-                .navigationTitle("Create Practice")
-                .background(Color(.systemBackground).edgesIgnoringSafeArea(.all))
-                .onChange(of: viewModel.isSendSuccessfully) { _, newValue in
-//                    if newValue {
-//                        router.navigateToSwiftUIView()
-//                    }
-                }
-                .onChange(of: viewModel.errorMessage) { _, newValue in
-                    if newValue != nil {
-                        withAnimation {
-                            showErrorToast = true
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation {
-                                showErrorToast = false
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .sheet(isPresented: $isShowingImagePicker) {
-                    ImagePicker(image: $image)
-                }
-                .sheet(isPresented: $isShowingAudioPicker) {
-                    ImportAudioManager(data: $audio, duration: $duration)
-                }
-                .sheet(isPresented: $isShowingPlayerPreview) {
-                    PlayerView(
-                        audio: .constant(audio!),
-                        image: $image,
-                        title: $title,
-                        therapeuticPurpose: $therapeuticPurpose,
-                        frequency: $frequency
-                    )
-                }
                 
                 if viewModel.isLoading {
                     Color.black.opacity(0.4) // Затемнение фона
@@ -347,6 +241,46 @@ struct CreateMeditationView: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(2) // Увеличение индикатора
                 }
+            }
+            .navigationBarTitle("Create Practice", displayMode: .inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    DarkBackButtonView()
+                }
+            }
+            .background(Color(.systemBackground).edgesIgnoringSafeArea(.all))
+            .onChange(of: viewModel.isSendSuccessfully) { _, newValue in
+
+            }
+            .onChange(of: viewModel.errorMessage) { _, newValue in
+                if newValue != nil {
+                    withAnimation {
+                        showErrorToast = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        withAnimation {
+                            showErrorToast = false
+                        }
+                    }
+                }
+            }
+            .padding()
+            .sheet(isPresented: $isShowingImagePicker) {
+                ImagePicker(image: $image)
+            }
+            .sheet(isPresented: $isShowingAudioPicker) {
+                ImportAudioManager(data: $audio, duration: $duration)
+            }
+            .sheet(isPresented: $isShowingPlayerPreview) {
+                PlayerView(
+                    audio: $audio,
+                    image: $image,
+                    title: $title,
+                    therapeuticPurpose: $therapeuticPurpose,
+                    frequency: $frequency,
+                    practiceId: .constant("")
+                )
             }
         }
     }

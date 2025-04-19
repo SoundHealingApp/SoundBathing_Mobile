@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-// TODO: логика отображения функционала для администратора
 struct MainView: View {
     @State var selectedTab: MainTapBar = .allPractices
-    @StateObject var getPracticesViewModel = GetPracticesViewModel()
+    @EnvironmentObject var practicesVM: GetPracticesViewModel
+//    @StateObject var getPracticesViewModel = GetPracticesViewModel()
     
     var body: some View {
         NavigationStack {
@@ -18,9 +18,9 @@ struct MainView: View {
                 Group {
                     switch selectedTab {
                     case .allPractices:
-                        PracticesView(viewModel: getPracticesViewModel)
+                        PracticesView()
                     case .likedPractices:
-                        LikedPracticesView(viewModel: getPracticesViewModel)
+                        LikedPracticesView()
                     case .profile:
                         ProfileView()
                     }

@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct LikedPracticesView: View {
-    @StateObject var viewModel: GetPracticesViewModel
+//    @StateObject var viewModel: GetPracticesViewModel
+    @EnvironmentObject var viewModel: GetPracticesViewModel
 
     var columns = Array(repeating: GridItem(), count: 2)
 

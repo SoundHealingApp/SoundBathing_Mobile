@@ -25,5 +25,5 @@ struct YouTubePlayerView: UIViewRepresentable {
 }
 
 #Preview {
-    YouTubePlayerView(videoID: "lRT4kh67Ivw")
+    YouTubePlayerView(videoID: "Affh1xGriY8")
 }

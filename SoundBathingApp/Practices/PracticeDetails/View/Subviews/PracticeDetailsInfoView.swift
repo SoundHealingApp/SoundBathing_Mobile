@@ -19,9 +19,15 @@ struct PracticeDetailsInfoView: View {
     @State private var maxHeight: CGFloat = 100
 
     @StateObject var feedbacksViewModel = FeedbacksViewModel()
+    @EnvironmentObject var viewModel: GetPracticesViewModel
+
+//    @StateObject var viewModel = GetPracticesViewModel()
+    @State private var audioLoadTask: Task<Void, Never>?
+    @State private var audioData: Data?
+    @State private var isAudioLoading = false
+    @State private var userRequestedPlay = false
     
     let practice: Practice
-    
     // MARK: - Computed Properties
     private var currentUserId: String {
         guard let userId = KeyChainManager.shared.getUserId() else {
@@ -160,37 +166,53 @@ struct PracticeDetailsInfoView: View {
             }
             .padding(.top, 10)
         
-            if !showPlayer {
-                /// Кнопка "Listen"
-                Button {
-                    // TODO: добавить действие для прослушивания
-                    showPlayer = true
-                } label: {
-                    HStack {
+            /// Кнопка "Listen"
+            Button {
+                handleListenButtonTap()
+            } label: {
+                HStack {
+                    if isAudioLoading {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
                         Image(systemName: "play.fill") // Иконка кнопки
                         Text("Start Listening")
                             .font(.system(size: 18, weight: .semibold))
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .foregroundStyle(.white)
-                    .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
-                .padding(.top, 20)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .foregroundStyle(.white)
+                .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
             }
+            .disabled(isAudioLoading)
+            .padding(.top, 20)
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 30)
-        .navigationDestination(isPresented: $showPlayer, destination: {
-            PlayerView(
-                showFullPlayer: true, audio: .constant(practice.audio),
-                image: .constant(practice.image),
-                title: .constant(practice.title),
-                therapeuticPurpose: .constant(practice.therapeuticPurpose),
-                frequency: .constant(practice.frequency != nil ? String(format: "%.1f Hz", practice.frequency!) : "")
-            )
+        .onAppear {
+            startBackgroundAudioLoading()
+        }
+        .onDisappear {
+            // Отменяем загрузку если пользователь ушел с экрана
+            audioLoadTask?.cancel()
+        }
+        .navigationDestination(
+            isPresented: $showPlayer,
+            destination: {
+                if let audio = audioData {
+                    PlayerView(
+                        showFullPlayer: true,
+                        audio: .constant(audio),
+                        image: .constant(practice.image),
+                        title: .constant(practice.title),
+                        therapeuticPurpose: .constant(practice.therapeuticPurpose),
+                        frequency: .constant(practice.frequency != nil ? String(format: "%.1f Hz", practice.frequency!) : ""),
+                        practiceId: .constant(practice.id)
+                )
+            }
         })
         .sheet(isPresented: $showingReviewForm) {
             FeedbackCreationView(
@@ -227,6 +249,41 @@ struct PracticeDetailsInfoView: View {
         .onAppear {
             Task {
                 await feedbacksViewModel.getPracticeFeedBacks(practiceId: practice.id)
+            }
+        }
+    }
+    
+    private func startBackgroundAudioLoading() {
+        guard audioData == nil, audioLoadTask == nil else { return }
+        
+        audioLoadTask = Task {
+            let audio = await viewModel.downloadPracticeAudio(practiceId: practice.id)
+            
+            await MainActor.run {
+                audioData = audio
+                isAudioLoading = false
+                
+                // Если пользователь нажал кнопку, переходим на PlayerView
+                if userRequestedPlay {
+                    showPlayer = true
+                    userRequestedPlay = false
+                }
+            }
+        }
+    }
+    
+    private func handleListenButtonTap() {
+        if audioData != nil {
+            // Аудио уже загружено - сразу открываем плеер
+            showPlayer = true
+        } else {
+            // Устанавливаем флаг, что пользователь хочет проиграть аудио
+            userRequestedPlay = true
+            isAudioLoading = true
+            
+            // Если задача еще не запущена (например, onAppear не сработал)
+            if audioLoadTask == nil {
+                startBackgroundAudioLoading()
             }
         }
     }

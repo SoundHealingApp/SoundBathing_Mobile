@@ -10,15 +10,21 @@ import SwiftUI
 /// Вью для звукового представления.
 struct PlayerView: View {
     @StateObject var vm = PlayerViewModel()
+//    @StateObject var viewModel = GetPracticesViewModel()
+    @EnvironmentObject var viewModel: GetPracticesViewModel
+
     @State var showFullPlayer = false
     
-    @Binding var audio: Data
+    @Binding var audio: Data?
     @Binding var image: UIImage?
     @Binding var title: String
     @Binding var therapeuticPurpose: String
     @Binding var frequency: String
-    var isCompact: Bool = false
+    @Binding var practiceId: String
 
+    var isCompact: Bool = false
+    @State private var isLoadingAudio = false
+    @State private var audioLoadingError: String?
     @Namespace private var playerAnimation
     
     var frameImage: CGFloat = 320
@@ -39,6 +45,24 @@ struct PlayerView: View {
                 }
             }
     }
+    
+//    private func loadAudioIfNeeded() {
+//        guard audio == nil else {
+//            vm.getAudioInfo(song: audio!)
+//            return
+//        }
+//        
+//        isLoadingAudio = true
+//        Task {
+//            if let audioData = await viewModel.downloadPracticeAudio(practiceId: practiceId) {
+//                audio = audioData
+//                vm.getAudioInfo(song: audioData)
+//            } else {
+//                audioLoadingError = "Не удалось загрузить аудио"
+//            }
+//            isLoadingAudio = false
+//        }
+//    }
     
     // MARK: - Methods
     /// Расскрывающийся большой плейер

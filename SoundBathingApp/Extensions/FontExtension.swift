@@ -9,6 +9,7 @@ import SwiftUI
 
 enum CustomFonts: String {
     case PlayfairDisplayMedium = "PlayfairDisplay-Medium"
+    case PlayfairDisplayRegular = "PlayfairDisplay-Regular"
     case OpenSansLight = "OpenSans-Light"
     case FuturaPTLight = "FuturaPT-Light"
     case MarcellusRegular = "Marcellus-Regular"

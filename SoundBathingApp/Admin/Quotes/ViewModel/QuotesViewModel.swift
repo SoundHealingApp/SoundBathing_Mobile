@@ -50,7 +50,7 @@ class QuotesViewModel: ObservableObject {
         }
     }
     
-    /// Получение всех практик с сервера.
+    /// Получение всех цитат с сервера.
     func getAllQuotes() async {
         let endPoint = EndPoints.GetQuotes
         
@@ -133,7 +133,6 @@ class QuotesViewModel: ObservableObject {
                 self.errorMessage = error.localizedDescription
             }
         }
-
     }
     
     /// Удалить цитату.
@@ -165,8 +164,6 @@ class QuotesViewModel: ObservableObject {
             }
         }
     }
-    
-    
     // MARK: - Private methods
     private func createQuotesModels(quotesDtos: [QuotesResponseDto]) {
         for quoteDto in quotesDtos {
