@@ -13,8 +13,8 @@ class EndPoints {
     static let Register: String = "/auth/register"
     static let SignIn: String = "/auth/login"
     static let CheckUserExistence: String = "/auth/user"
-    static let CreateUser: String = "/users"
-    static let ChangeUserData: String = "/users"
+    static let CreateUser: String = "/api/users"
+    static let ChangeUserData: String = "/api/users"
     
     // MARK: Practices
     static let CreatePractice: String = "/api/meditations"
@@ -46,5 +46,7 @@ class EndPoints {
     // MARK: Recommended practices
     static let AddPracticesToRecommended: String = "/api/users"
     static let GetRecommendedPractices: String = "/api/users"
-
+    
+    // MARK: Permissions
+    static let HasPermission: String = "/api/users"
 }

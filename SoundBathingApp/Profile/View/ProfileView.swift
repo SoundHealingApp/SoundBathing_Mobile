@@ -12,19 +12,23 @@ import SwiftUI
 struct ProfileView: View {
     @State private var selectedSection: ProfileSection? = nil
     @StateObject private var quotesViewModel = QuotesViewModel()
+    @EnvironmentObject var userPermissionsVM: UserPermissionsViewModel
+    @State private var canManagePractices = false
+    @State private var canManageQuotes = false
+    @State private var canManageLiveStreams = false
+
     @State private var randomQuote: Quote = Quote(
         id: UUID().uuidString,
         author: "Anonymous",
         text: "Don’t compare someone’s middle to your beginning."
     )
-    
-//    @EnvironmentObject var authService: AuthService // Сервис для проверки роли
 
     enum ProfileSection {
         case quotes
         case liveStreams
         case practices
     }
+    
     
     var isAdmin: Bool {
         return true
@@ -38,12 +42,9 @@ struct ProfileView: View {
                     .padding(.bottom, 8)
                 
                 dailyQuoteCard
-                
-                if isAdmin {
-                    adminFunctionsSection
-                } else {
-                    userFunctionsSection
-                }
+                adminFunctionsSection
+                userFunctionsSection
+
             }
             .padding()
         }
@@ -58,26 +59,39 @@ struct ProfileView: View {
                 CreateMeditationView()
             }
         }
+        .task {
+            canManagePractices = await userPermissionsVM.CanCurrentUserManagePracticesAsync()
+            canManageQuotes = await userPermissionsVM.CanCurrentUserManageQuotesAsync()
+            canManageLiveStreams = await userPermissionsVM.CanCurrentUserManageLiveStreamsAsync()
+        }
     }
     
     // MARK: - Секции для разных типов пользователей
     private var adminFunctionsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Admin Tools")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(.black)
+            if canManageQuotes || canManagePractices || canManageLiveStreams {
+                Text("Admin Tools")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.black)
+            }
             
             VStack(spacing: 12) {
-                NavigationButton(title: "Manage Quotes", icon: "quote.bubble.fill", color: .purple) {
-                    selectedSection = .quotes
+                if canManageQuotes {
+                    NavigationButton(title: "Manage Quotes", icon: "quote.bubble.fill", color: .purple) {
+                        selectedSection = .quotes
+                    }
                 }
                 
-                NavigationButton(title: "Live Streams", icon: "video.fill", color: .red) {
-                    selectedSection = .liveStreams
+                if canManageLiveStreams {
+                    NavigationButton(title: "Live Streams", icon: "video.fill", color: .red) {
+                        selectedSection = .liveStreams
+                    }
                 }
                 
-                NavigationButton(title: "Manage Practices", icon: "leaf.fill", color: .green) {
-                    selectedSection = .practices
+                if canManagePractices {
+                    NavigationButton(title: "Manage Practices", icon: "leaf.fill", color: .green) {
+                        selectedSection = .practices
+                    }
                 }
             }
         }
@@ -90,8 +104,8 @@ struct ProfileView: View {
             
             VStack(spacing: 12) {
                 
-                NavigationButton(title: "Favorites", icon: "bookmark.fill", color: .pink) {
-                    // Переход к избранному
+                NavigationButton(title: "Upcoming live streams", icon: "video.fill", color: .pink) {
+                    // TODOO:
                 }
             }
         }
