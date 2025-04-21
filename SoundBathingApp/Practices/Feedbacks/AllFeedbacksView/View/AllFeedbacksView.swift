@@ -38,63 +38,61 @@ struct AllFeedbacksView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Верхняя часть с рейтингом
-                    RatingHeaderView(
-                        averageRating: averageRating,
-                        totalReviews: feedbacks.count,
-                        ratingDistribution: ratingDistribution
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    // Заголовок отзывов
-                    Text("Feedbacks / \(feedbacks.count)")
-                        .font(.system(size: 16, weight: .semibold))
-                        .padding(.horizontal, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                    
-                    // Список отзывов
-                    LazyVStack(spacing: 16) {
-                        ForEach(feedbacks) { feedback in
-                            ModernFeedbackCard(
-                                feedback: feedback,
-                                onEdit: { editingFeedback = feedback },
-                                onDelete: {
-                                    feedbackToDelete = feedback
-                                    showingDeleteAlert = true
-                                })
-                                .padding(.horizontal, 16)
-                        }
-                    }
-                }
-                .padding(.vertical, 16)
-            }
-            .sheet(item: $editingFeedback) { feedback in
-                FeedbackCreationView(
-                    practiceId: practice.id,
-                    editingFeedback: feedback,
-                    viewModel: viewModel
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Верхняя часть с рейтингом
+                RatingHeaderView(
+                    averageRating: averageRating,
+                    totalReviews: feedbacks.count,
+                    ratingDistribution: ratingDistribution
                 )
-            }
-            .alert("Delete Review", isPresented: $showingDeleteAlert, presenting: feedbackToDelete) { feedback in
-                Button("Delete", role: .destructive) {
-                    Task {
-                        await viewModel.deleteFeedback(
-                            practiceId: practice.id,
-                            userId: currentUserId)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Заголовок отзывов
+                Text("Feedbacks / \(feedbacks.count)")
+                    .font(.system(size: 16, weight: .semibold))
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                
+                // Список отзывов
+                LazyVStack(spacing: 16) {
+                    ForEach(feedbacks) { feedback in
+                        ModernFeedbackCard(
+                            feedback: feedback,
+                            onEdit: { editingFeedback = feedback },
+                            onDelete: {
+                                feedbackToDelete = feedback
+                                showingDeleteAlert = true
+                            })
+                            .padding(.horizontal, 16)
                     }
                 }
-                Button("Cancel", role: .cancel) {}
-            } message: { _ in
-                Text("Are you sure you want to delete this review?")
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("Feedbacks")
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(.vertical, 16)
         }
+        .sheet(item: $editingFeedback) { feedback in
+            FeedbackCreationView(
+                practiceId: practice.id,
+                editingFeedback: feedback,
+                viewModel: viewModel
+            )
+        }
+        .alert("Delete Review", isPresented: $showingDeleteAlert, presenting: feedbackToDelete) { feedback in
+            Button("Delete", role: .destructive) {
+                Task {
+                    await viewModel.deleteFeedback(
+                        practiceId: practice.id,
+                        userId: currentUserId)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("Are you sure you want to delete this review?")
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Feedbacks")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

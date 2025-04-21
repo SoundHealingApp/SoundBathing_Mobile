@@ -48,6 +48,7 @@ class CreateUserViewModel: ObservableObject {
         switch result {
             case .success(let user):
                 KeyChainManager.shared.saveToken(user.token)
+                KeyChainManager.shared.saveUserId(user.userId)
                 self.userId = user.userId
                 self.isUserCreatedSuccessful = true
             case .failure(let error):
