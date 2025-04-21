@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct WelcomeQuoteView: View {
-    @Binding var showMainView: Bool
-    @Binding var showSurveyView: Bool
+    @EnvironmentObject var appViewModel: AppViewModel
 
     @State private var isAnimating = false
     @State private var showUI = false
@@ -25,11 +24,10 @@ struct WelcomeQuoteView: View {
 
     var body: some View {
         ZStack {
-            /// Вибрирующий фон
+            /// Фон
             DynamicBackground()
                 .ignoresSafeArea()
                 .blur(radius: 20)
-//            VibratingWaveBackgroundView()
 
             VStack {
                 Spacer()
@@ -67,7 +65,7 @@ struct WelcomeQuoteView: View {
 
                 /// Кнопка продолжения
                 Button(action: {
-                    dismissAfterAnimation()
+                    appViewModel.hideWelcomeQuote()
                 }) {
                     HStack {
                         Text("Continue")
@@ -125,11 +123,23 @@ struct WelcomeQuoteView: View {
     
     private func dismissAfterAnimation() {
         withAnimation(.easeOut(duration: 0.3)) {
-//            showMainView = true
-            showSurveyView = true
+            appViewModel.hideWelcomeQuote()
         }
     }
+    
+//    private func startTimer() {
+//        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
+//            dismissAfterAnimation()
+//        }
+//    }
+//    
+//    private func dismissAfterAnimation() {
+//        withAnimation(.easeOut(duration: 0.3)) {
+////            showMainView = true
+//            showSurveyView = true
+//        }
+//    }
 }
 #Preview {
-    WelcomeQuoteView(showMainView: .constant(false), showSurveyView: .constant(true))
+    WelcomeQuoteView()
 }

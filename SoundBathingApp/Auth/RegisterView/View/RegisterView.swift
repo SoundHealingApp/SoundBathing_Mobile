@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct RegisterView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+
     @StateObject var viewModel = CheckUserExistenceViewModel()
     
     @State private var email: String = ""
@@ -21,7 +23,6 @@ struct RegisterView: View {
     @State private var showErrorToast = false
     
     @FocusState private var focusedField: FocusedField?
-    @Environment(Router.self) var router
     
     private var isNextButtonDisabled: Bool {
         !Validator.isEmailCorrect(email) ||
@@ -53,12 +54,12 @@ struct RegisterView: View {
                     .font(customFont: .FuturaPTLight, size: 25)
                     .foregroundStyle(Color.textGrayColor)
                     .padding(.bottom, 30)
-
+                
                 EmailTextField(email: $email, isEmailValid: $isEmailValid)
                 
                 PasswordTextField(password: $password, isFirstPasswordValid: $isFirstPasswordValid)
                     .firstPasswordTFCustomStyle(password: $password, repeatedPassword: $repeatedPassword, isFirstPasswordValid: $isFirstPasswordValid, isRepeatedPasswordValid: $isRepeatedPasswordValid)
-
+                
                 SecureTextField(title: "Repeat password", text: $repeatedPassword)
                     .registrationTFCustomStyle()
                     .background(
@@ -92,7 +93,7 @@ struct RegisterView: View {
             }
             .onChange(of: viewModel.isCheckedSuccessful) { _, newValue in
                 if newValue {
-                    router.navigateToNameEnteringView()
+                    appViewModel.showNameEntering()
                 }
             }
             .onChange(of: viewModel.errorMessage) { _, newValue in

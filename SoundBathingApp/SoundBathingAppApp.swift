@@ -6,74 +6,31 @@
 //
 
 import SwiftUI
+import JWTDecode
 
 @main
 struct SoundBathingAppApp: App {
-//    @AppStorage("hasShownWelcome") var hasShownWelcome = false
-//    @State private var showMainView = false
-//    @State private var showSurveyView = false
     @StateObject private var practicesVM = GetPracticesViewModel()
     @StateObject private var appViewModel = AppViewModel()
+    @StateObject private var userPermissionsViewModel = UserPermissionsViewModel()
+
     var body: some Scene {
         WindowGroup {
-//            OnboardingView()
             ContentView()
                 .environmentObject(appViewModel)
                 .environmentObject(practicesVM)
+                .environmentObject(userPermissionsViewModel)
                 .onAppear {
-                    appViewModel.setupBackgroundTasks() // ← Здесь!
-
-                    // Загрузка данных при старте
+                    appViewModel.setupBackgroundTasks()
+                    
+                    /// Загрузка данных при старте
                     Task {
                         await practicesVM.getAllPractices()
                     }
                 }
-//            MeditationSurveyView()
-//            if showMainView {
-//                MainView()
-//            } else {
-//                // TODO: Сделать тут потом метод, принимающий решение, какое вью отображать
-//                WelcomeQuoteView(showMainView: $showMainView, showSurveyView: $showSurveyView)
-//            }
-//            ContentView()
-//            if !hasShownWelcome {
-//                WelcomeQuoteView()
-//                    .onDisappear {
-//                        hasShownWelcome = true
-//                    }
-//            } else {
-//                MainView()
-//                    .withRouter()
-//            }
-//             TODO: проверка на срок действия токена
-//            if KeyChainManager.shared.getToken() != nil {
-//                MainView()
-//                    .withRouter()
-//            } else {
-//               SignInView()
-//                    .withRouter()
-//            }
-//            
-//            
-//            CreateMeditationView()
-//            SignInView()
-//            BirthdateEnteringView()
-//            RegisterView()
-//            NameEnteringView()
         }
     }
 }
-
-//func f() {
-//    for family in UIFont.familyNames.sorted() {
-//        print("Family: \(family)")
-//        
-//        let fontNames = UIFont.fontNames(forFamilyName: family)
-//        for fontName in fontNames {
-//            print("    Font: \(fontName)")
-//        }
-//    }
-//}
 
 struct ContentView: View {
     @EnvironmentObject var appViewModel: AppViewModel
@@ -81,45 +38,117 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if appViewModel.showOnboarding {
-                OnboardingView()
-            } else if appViewModel.showMainView {
-                MainView()
-            } else if appViewModel.showSurveyView {
-                MeditationSurveyView()
-            } else {
-                WelcomeQuoteView(showMainView: $appViewModel.showMainView, showSurveyView: $appViewModel.showSurveyView)
+            NavigationStack(path: $appViewModel.navigationPath) {
+                WelcomeQuoteView()
+                    .navigationDestination(for: AppRoute.self) { route in
+                        switch route {
+                        case .onboarding:
+                            OnboardingView()
+                        case .register:
+                            RegisterView()
+                        case .survey:
+                            MeditationSurveyView()
+                        case .signIn:
+                            SignInView()
+                        case .nameEntering:
+                            NameEnteringView()
+                        case .birthEntering:
+                            BirthdateEnteringView()
+                        case .main:
+                            MainView()
+                        }
+                    }
             }
         }
     }
 }
 
-// TODO: сделать логику
+enum AppRoute: Hashable {
+    case onboarding
+    case register
+    case survey
+    case signIn
+    case nameEntering
+    case birthEntering
+    case main
+}
+
+
 class AppViewModel: ObservableObject {
-    @Published var showMainView = false
-    @Published var showSurveyView = false
-    @Published var skipRecommendations = false
+    @Published var navigationPath = NavigationPath()
     @Published var showOnboarding = !UserDefaults.standard.bool(forKey: "completedOnboarding")
+    @Published var showWelcomeQuote = true // Новое состояние для цитаты
     
-    private let surveyInterval: TimeInterval = 1 * 3600 // 5 часов в секундах
+    private let surveyInterval: TimeInterval = 5 * 3600 // 5 часов в секундах
     
     init() {
-        checkSurveyConditions()
+        checkInitialState()
     }
     
     private func checkInitialState() {
-        // 1) Администтор или нет
-        // 2) Зарегистрирован или нет
-        // 3) Цитата
-        // 4) Опрос
-        // 5) Главное вью
+        showWelcomeQuote = true
+    }
+    
+    /// Перейти на вью регистрации.
+    func showSignUpViewFromSignIn() {
+        navigate(to: .register)
+    }
+    
+    func showNameEntering() {
+        navigate(to: .nameEntering)
+    }
+
+    func showBirthEntering() {
+        navigate(to: .birthEntering)
+    }
+    
+    func hideWelcomeQuote() {
+        showWelcomeQuote = false
+        
+        if shouldRegister() {
+            if !UserDefaults.standard.bool(forKey: "completedOnboarding") {
+                navigate(to: .onboarding)
+            } else {
+                navigate(to: .signIn)
+            }
+        }
+        else if shouldSignIn() {
+            navigate(to: .signIn)
+        } else {
+            checkSurveyConditions()
+        }
+    }
+    
+    /// Должен ли пользователь зарегистрироваться в системе
+    func shouldRegister() -> Bool {
+        /// Проверяем, есть ли email в UserDefaults
+        return UserDefaultsManager.shared.getUserBirthDate() == nil
+    }
+    
+    /// Должен ли пользователь войти в систему.
+    func shouldSignIn() -> Bool {
+        guard let token = KeyChainManager.shared.getToken() else {
+            /// Токена нет - нужно войти
+            return true
+        }
+        
+        return isTokenExpired(token)
     }
     
     /// Поставить признак законченного онбординга.
     func completeOnboarding() {
         UserDefaults.standard.set(true, forKey: "completedOnboarding")
-        showOnboarding = false
-        checkSurveyConditions()
+        navigate(to: .survey)
+    }
+    
+    func completeSignUp() {
+        navigationPath = NavigationPath()
+        navigate(to: .main)
+    }
+    
+    func completeSignIn() {
+        navigationPath = NavigationPath()
+        navigate(to: .survey)
     }
     
     /// Проверяем, когда в последний раз пользователю показывался опрос.
@@ -129,17 +158,30 @@ class AppViewModel: ObservableObject {
         
         // Если прошло больше 5 часов или это первый запуск
         if timeSinceLastSurvey > surveyInterval {
-            showSurveyView = true
-            showMainView = false
+            navigate(to: .survey)
         } else {
-            showMainView = true
-            showSurveyView = false
+            navigate(to: .main)
         }
     }
     
     /// Установка фоновых задач.
     func setupBackgroundTasks() {
         setupDailyMeditationReminder()
+    }
+    
+    /// Проверка срока действия токена.
+    private func isTokenExpired(_ token: String) -> Bool {
+        do {
+            let jwt = try decode(jwt: token)
+            if let expiresAt = jwt.expiresAt {
+                print("Token expires at \(expiresAt)")
+                return expiresAt < Date()
+            }
+            return true
+        } catch {
+            print("Ошибка декодирования JWT: \(error)")
+            return true
+        }
     }
     
     /// Установка ежедневных напоминаний.
@@ -190,16 +232,23 @@ class AppViewModel: ObservableObject {
     func didCompleteSurvey() {
         // Сохраняем текущее время как время последнего опроса
         UserDefaults.standard.set(Date(), forKey: "lastSurveyDate")
-        showSurveyView = false
-        showMainView = true
+        
+        if shouldRegister() {
+            navigate(to: .signIn)
+        } else {
+            navigate(to: .main)
+        }
     }
     
     func skipSurveyAndRecommendations() {
-//        UserDefaults.standard.set(true, forKey: "skipRecommendations")
-        skipRecommendations = true
-        showSurveyView = false
-        showMainView = true
+        if shouldRegister() {
+            navigate(to: .signIn)
+        } else {
+            navigate(to: .main)
+        }
     }
-
-
+    
+    func navigate(to route: AppRoute) {
+        navigationPath.append(route)
+    }
 }

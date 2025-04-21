@@ -16,8 +16,9 @@ struct BirthdateEnteringView: View {
 
     @StateObject var birthDateViewModel = BirthDateViewModel()
     @StateObject var createUserViewModel = CreateUserViewModel()
+    
+    @EnvironmentObject var appViewModel: AppViewModel
 
-    @Environment(Router.self) var router
     var body: some View {
         ZStack {
             VStack(alignment: .center, spacing: 40) {
@@ -50,7 +51,7 @@ struct BirthdateEnteringView: View {
             }
             .onChange(of: createUserViewModel.isUserCreatedSuccessful) { _, newValue in
                 if newValue {
-                    router.navigateToSwiftUIView()
+                    appViewModel.completeSignUp()
                 }
             }
             .onChange(of: createUserViewModel.errorMessage) { _, newValue in

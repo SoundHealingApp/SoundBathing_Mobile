@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct NameEnteringView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
     @StateObject var viewModel = NameEnteringViewModel()
-
+    
     @State private var name: String = ""
     @State private var surname: String = ""
     @State private var presentNextView = false
     @State private var date: Date = Date.now
-    @Environment(Router.self) var router
 
     var body: some View {
         VStack(alignment: .center, spacing: 40) {
@@ -29,7 +29,7 @@ struct NameEnteringView: View {
             .padding()
             CustomButtonView(text: "Next", isDisabled: name.isEmpty || surname.isEmpty) {
                 viewModel.saveNameDataToUserDefaults(name: name, surname: surname)
-                router.navigateToBirthEnteringView()
+                appViewModel.showBirthEntering()
             }
             .padding(.top, 100)
         }

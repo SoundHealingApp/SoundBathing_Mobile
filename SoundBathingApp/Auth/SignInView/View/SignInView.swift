@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SignInView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    
     @StateObject var viewModel = SignInViewModel()
     
     @State private var email = ""
@@ -15,9 +17,8 @@ struct SignInView: View {
     
     @State private var isEmailValid = true
     @State private var isPasswordValid = true
-    
+    @State private var shouldShowSignUpView = false
     @FocusState private var focusedField: FocusedField?
-    @Environment(Router.self) var router
     @State private var showErrorToast = false
 
     private var isSignInButtonDisabled: Bool {
@@ -65,7 +66,8 @@ struct SignInView: View {
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .foregroundStyle(Color(red: 79/255, green: 79/255, blue: 79/255))
                         Button {
-                            router.navigateToSignUp()
+                            shouldShowSignUpView = true
+//                            appViewModel.showSignInView = false
                         } label: {
                             Text("Sign up")
                                 .font(customFont: .FuturaPTLight, size: 20)
@@ -78,9 +80,12 @@ struct SignInView: View {
                 }
                 .padding(.top, 15)
             }
+            .navigationDestination(isPresented: $shouldShowSignUpView, destination: {
+                RegisterView()
+            })
             .onChange(of: viewModel.isSignedInSuccessfully) { _, newValue in
                 if newValue {
-                    router.navigateToSwiftUIView()
+                    appViewModel.completeSignIn()
                 }
             }
             .onChange(of: viewModel.errorMessage) { _, newValue in

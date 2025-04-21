@@ -13,20 +13,18 @@ struct MainView: View {
 //    @StateObject var getPracticesViewModel = GetPracticesViewModel()
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                Group {
-                    switch selectedTab {
-                    case .allPractices:
-                        PracticesView()
-                    case .likedPractices:
-                        LikedPracticesView()
-                    case .profile:
-                        ProfileView()
-                    }
+        VStack {
+            Group {
+                switch selectedTab {
+                case .allPractices:
+                    PracticesView()
+                case .likedPractices:
+                    LikedPracticesView()
+                case .profile:
+                    ProfileView()
                 }
-                MainTabBarView(selectedTab: $selectedTab)
             }
+            MainTabBarView(selectedTab: $selectedTab)
         }
     }
 }
