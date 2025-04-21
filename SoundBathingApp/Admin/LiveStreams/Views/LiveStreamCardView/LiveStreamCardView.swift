@@ -10,11 +10,39 @@ import SwiftUI
 struct LiveStreamCardView: View {
     let stream: LiveStream
     
+    var isPastStreamByHour: Bool {
+        let oneHourAgo = Calendar.current.date(byAdding: .hour, value: -1, to: Date()) ?? Date()
+        return stream.startDateTime < oneHourAgo
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            YouTubePlayerView(videoID: ExtractYouTubeIDHelper.extractYouTubeID(from: stream.youTubeUrl) ?? "")
-                .frame(height: 180)
-                .cornerRadius(12)
+            ZStack {
+                YouTubePlayerView(videoID: ExtractYouTubeIDHelper.extractYouTubeID(from: stream.youTubeUrl) ?? "")
+                    .frame(height: 180)
+                    .cornerRadius(12)
+                    .overlay(
+                        // Если прошёл — затемняем
+                        isPastStreamByHour ? Color.black.opacity(0.4).cornerRadius(12) : nil
+                    )
+                
+                if isPastStreamByHour {
+                    VStack {
+                        Spacer()
+                        Text("Stream Ended")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(Color.black.opacity(0.7))
+                            .cornerRadius(12)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .frame(height: 180)
+
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(stream.title)
