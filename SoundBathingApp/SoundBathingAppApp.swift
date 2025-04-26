@@ -13,6 +13,7 @@ struct SoundBathingAppApp: App {
     @StateObject private var practicesVM = GetPracticesViewModel()
     @StateObject private var appViewModel = AppViewModel()
     @StateObject private var userPermissionsViewModel = UserPermissionsViewModel()
+    @StateObject private var liveStreamViewModel = LiveStreamViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -20,6 +21,7 @@ struct SoundBathingAppApp: App {
                 .environmentObject(appViewModel)
                 .environmentObject(practicesVM)
                 .environmentObject(userPermissionsViewModel)
+                .environmentObject(liveStreamViewModel)
                 .onAppear {
                     appViewModel.setupBackgroundTasks()
                     
@@ -121,8 +123,9 @@ class AppViewModel: ObservableObject {
     
     /// Должен ли пользователь зарегистрироваться в системе
     func shouldRegister() -> Bool {
-        /// Проверяем, есть ли email в UserDefaults
-        return UserDefaultsManager.shared.getUserBirthDate() == nil
+        /// Проверяем, зарегистрирован ли пользователь
+        return !UserDefaultsManager.shared.isUserRegistered()
+
     }
     
     /// Должен ли пользователь войти в систему.

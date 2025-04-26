@@ -20,13 +20,13 @@ struct PracticeDetailsInfoView: View {
 
     @StateObject var feedbacksViewModel = FeedbacksViewModel()
     @EnvironmentObject var viewModel: GetPracticesViewModel
-
-//    @StateObject var viewModel = GetPracticesViewModel()
+    @EnvironmentObject var userPermissionsVM: UserPermissionsViewModel
+    
     @State private var audioLoadTask: Task<Void, Never>?
     @State private var audioData: Data?
     @State private var isAudioLoading = false
     @State private var userRequestedPlay = false
-    
+    @State private var isUserAdmin = false
     let practice: Practice
     // MARK: - Computed Properties
     private var currentUserId: String {
@@ -35,11 +35,6 @@ struct PracticeDetailsInfoView: View {
             return ""
         }
         return userId
-    }
-    
-    private var isAdmin: Bool {
-        // TODO: Реализовать проверку на администратора
-        false
     }
     
     var userHasFeedback: Bool {
@@ -109,7 +104,7 @@ struct PracticeDetailsInfoView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    if !userHasFeedback && !isAdmin {
+                    if !userHasFeedback && !isUserAdmin {
                         Button {
                             showingReviewForm = true
                         } label: {
@@ -194,6 +189,9 @@ struct PracticeDetailsInfoView: View {
         .padding(.bottom, 30)
         .onAppear {
             startBackgroundAudioLoading()
+            Task {
+                isUserAdmin = await isUserCanManagePractice()
+            }
         }
         .onDisappear {
             // Отменяем загрузку если пользователь ушел с экрана
@@ -286,6 +284,10 @@ struct PracticeDetailsInfoView: View {
                 startBackgroundAudioLoading()
             }
         }
+    }
+    
+    private func isUserCanManagePractice() async -> Bool {
+        await userPermissionsVM.CanCurrentUserManagePracticesAsync()
     }
 }
 

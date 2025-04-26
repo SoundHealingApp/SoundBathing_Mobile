@@ -14,22 +14,19 @@ class SignInViewModel: ObservableObject {
     @Published var isSignedInSuccessfully: Bool = false
     
     private let endPoint: String = EndPoints.SignIn
-    private var email: String = ""
-    private var password: String = ""
     
     func sendSignInRequestAsync(email: String, password: String) async {
         isLoading = true
         errorMessage = nil
         isSignedInSuccessfully = false
         
-        self.email = email
-        self.password = password
+        let hashedPassword = AuthHelper.hashPassword(password)
 
-        await signInAsync()
+        await signInAsync(email: email, hashedPassword: hashedPassword)
     }
     
-    private func signInAsync() async {
-        let signInRequest = SignInRequest(email: email, password: password)
+    private func signInAsync(email: String, hashedPassword: String) async {
+        let signInRequest = SignInRequest(email: email, hashedPassword: hashedPassword)
         let body = try? JSONEncoder().encode(signInRequest)
         
         let result: Result<SignInResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(

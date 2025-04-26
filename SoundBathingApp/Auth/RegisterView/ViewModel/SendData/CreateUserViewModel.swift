@@ -36,7 +36,9 @@ class CreateUserViewModel: ObservableObject {
             return
         }
         
-        let userRequest = RegisterUserRequest(email: email!, password: password!)
+        let hashedPassword = AuthHelper.hashPassword(password!)
+        
+        let userRequest = RegisterUserRequest(email: email!, hashedPassword: hashedPassword)
         let body = try? JSONEncoder().encode(userRequest)
         
         let result: Result<RegisterUserResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
@@ -93,6 +95,7 @@ class CreateUserViewModel: ObservableObject {
         switch result {
             case .success:
                 self.isUserCreatedSuccessful = true
+                UserDefaultsManager.shared.setUserRegistered()
             case .failure(let error):
                 switch error {
                     case .serverError(let message):

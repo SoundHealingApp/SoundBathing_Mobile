@@ -9,25 +9,17 @@ import SwiftUI
 
 struct PracticesView: View {
     @EnvironmentObject var viewModel: GetPracticesViewModel
-//    @StateObject var viewModel: GetPracticesViewModel
-
+    @EnvironmentObject var liveStreamViewModel: LiveStreamViewModel
+    @State var nearestLiveStream: LiveStream?
+    
     let rows = [GridItem(.adaptive(minimum: 150))]
     
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                // TODO: Отображение рекомендованных практик
-                
-                LiveStreamAnnouncementView(stream:             LiveStream(
-                    id: "1",
-                    title: "Evening Sound Bath Meditation",
-                    description: "Join us for a 45-minute deep relaxation session with Tibetan singing bowls and gong vibrations to help you unwind before sleep.",
-                    therapeuticPurpose: "Sleep Improvement",
-                    startDateTime: Date().addingTimeInterval(3600 * 3),
-                    // Через 3 часа
-                    youTubeUrl: "https://www.youtube.com/watch?v=Affh1xGriY8&t=3s"
-                )
-                )
+                if let nearestStream = nearestLiveStream {
+                    LiveStreamAnnouncementView(stream: nearestStream)
+                }
                 /// Guided Daily Moments
                 if !viewModel.practices.filter({$0.meditationType == MeditationCategory.daily}).isEmpty {
                     
@@ -79,6 +71,12 @@ struct PracticesView: View {
             .padding()
         }
         .shadow(color: .black.opacity(0.2), radius: 8, x: 5, y: 8)
+        .background(Color(.systemGroupedBackground))
+        .onAppear {
+            Task {
+                nearestLiveStream = await liveStreamViewModel.getNearestStream()
+            }
+        }
         .navigationTitle("Practices")
         .refreshable {
             Task {

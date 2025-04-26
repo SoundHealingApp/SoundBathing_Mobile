@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-// TODO: парсить дату в текущем часовом поисе
 @MainActor
 class LiveStreamViewModel: ObservableObject {
     @Published var liveStreams: [LiveStream] = []
@@ -98,6 +97,31 @@ class LiveStreamViewModel: ObservableObject {
         }
     }
     
+    /// Получение  прошедших стримов.
+    func getNearestStream() async -> LiveStream? {
+        let endPoint = EndPoints.GetNearestLiveStream
+        
+        let result: Result<LiveStreamResponseDto, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .GET
+        )
+        
+        switch result {
+            case .success(let liveStreamDto):
+            self.errorMessage = nil
+            return createLiveStreamsModel(liveStreamDto: liveStreamDto)
+            case .failure(let error):
+                switch error {
+                case .serverError(let message):
+                    self.errorMessage = message
+                    return nil
+                default:
+                    self.errorMessage = error.localizedDescription
+                    return nil
+                }
+        }
+    }
+    
     /// Обновление прямого эфира.
     func updateStream(updatedStream: LiveStream) async {
         let endPoint = "\(EndPoints.UpdateLiveStream)/\(updatedStream.id)"
@@ -170,6 +194,7 @@ class LiveStreamViewModel: ObservableObject {
     
     // MARK: - Private methods
     private func createLiveStreamsModels(liveStreamsDtos: [LiveStreamResponseDto]) {
+        liveStreams.removeAll()
         for liveStreamsDto in liveStreamsDtos {
             guard !liveStreams.contains(where: { $0.id == liveStreamsDto.id }) else {
                 continue
@@ -186,5 +211,18 @@ class LiveStreamViewModel: ObservableObject {
             
             liveStreams.append(liveStream)
         }
+    }
+    
+    private func createLiveStreamsModel(liveStreamDto: LiveStreamResponseDto) -> LiveStream {
+        let liveStream = LiveStream(
+            id: liveStreamDto.id,
+            title: liveStreamDto.title,
+            description: liveStreamDto.description,
+            therapeuticPurpose: liveStreamDto.therapeuticPurpose,
+            startDateTime: liveStreamDto.formattedStartDateTime.toLocalDateFromServer()!,
+            youTubeUrl: liveStreamDto.youTubeUrl
+        )
+        
+        return liveStream
     }
 }

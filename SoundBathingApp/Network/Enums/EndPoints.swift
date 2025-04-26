@@ -39,6 +39,7 @@ class EndPoints {
     // MARK: Live Streams
     static let CreateLiveStream: String = "/api/livestreams"
     static let GetUpcomingLiveStreams: String = "/api/livestreams/upcoming"
+    static let GetNearestLiveStream: String = "/api/livestreams/nearest"
     static let GetPastLiveStreams: String = "/api/livestreams/past"
     static let UpdateLiveStream: String = "/api/livestreams"
     static let DeleteLiveStream: String = "/api/livestreams"

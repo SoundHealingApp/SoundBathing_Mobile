@@ -16,7 +16,8 @@ class UserDefaultsManager {
     static let userSurnameKey: String = "userSurname"
     static let userEmojiKey: String = "userEmoji"
     static let birthDateKey: String = "userBirthDate"
-    
+    static let isRegistered: String = "isRegistered"
+
     // MARK: Quote
     private let nextUpdateQuoteDateKey = "nextUpdateQuoteDate"
     private let savedQuoteKey = "currentDailyQuote"
@@ -78,6 +79,14 @@ class UserDefaultsManager {
             return emoji
         }
         return nil
+    }
+    // MARK: - Is User registered.
+    func setUserRegistered() {
+        UserDefaults.standard.set(true, forKey: UserDefaultsManager.isRegistered)
+    }
+    
+    func isUserRegistered() -> Bool {
+        return UserDefaults.standard.bool(forKey: UserDefaultsManager.isRegistered)
     }
     
     // MARK: - Quotes.

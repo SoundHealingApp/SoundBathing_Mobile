@@ -29,12 +29,6 @@ struct ProfileView: View {
         case practices
     }
     
-    
-    var isAdmin: Bool {
-        return true
-//        authService.currentUser?.role == .admin
-    }
-    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -43,7 +37,6 @@ struct ProfileView: View {
                 
                 dailyQuoteCard
                 adminFunctionsSection
-                userFunctionsSection
 
             }
             .padding()
@@ -92,20 +85,6 @@ struct ProfileView: View {
                     NavigationButton(title: "Manage Practices", icon: "leaf.fill", color: .green) {
                         selectedSection = .practices
                     }
-                }
-            }
-        }
-    }
-    
-    private var userFunctionsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("My Journey")
-                .font(.system(size: 20, weight: .semibold))
-            
-            VStack(spacing: 12) {
-                
-                NavigationButton(title: "Upcoming live streams", icon: "video.fill", color: .pink) {
-                    // TODOO:
                 }
             }
         }

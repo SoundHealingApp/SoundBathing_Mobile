@@ -125,6 +125,13 @@ struct QuotesView: View {
         }
         .navigationTitle("Quotes")
         .navigationBarTitleDisplayMode(.inline)
+//        .navigationBarBackButtonHidden(true)
+//        .toolbar() {
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                DarkBackButtonView()
+//                    .padding(.leading, 10)
+//            }
+//        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

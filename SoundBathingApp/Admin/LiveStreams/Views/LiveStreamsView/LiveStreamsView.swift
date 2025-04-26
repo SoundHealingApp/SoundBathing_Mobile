@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LiveStreamsView: View {
-    @StateObject private var viewModel = LiveStreamViewModel()
+    @EnvironmentObject var viewModel: LiveStreamViewModel
     @State private var showDeleteConfirmation = false
     @State private var streamToDelete: LiveStream?
     @State private var scrollOffset: CGFloat = 0
@@ -159,17 +159,15 @@ struct LiveStreamsView: View {
             Task {
                 isLoading = true /// Показываем индикатор загрузки
                 await viewModel.getUpcomingStreams()
-                await viewModel.getPastStreams()
+//                await viewModel.getPastStreams()
                 isLoading = false /// Скрываем индикатор после загрузки
             }
         }
         .sheet(isPresented: $viewModel.showingAddStream) {
             LiveStreamCreationView()
-                .environmentObject(viewModel)
         }
         .sheet(item: $viewModel.editingStream) { stream in
             LiveStreamCreationView(stream: stream)
-                .environmentObject(viewModel)
         }
         .alert("Delete Stream?", isPresented: $showDeleteConfirmation, presenting: streamToDelete) { stream in
             Button("Delete", role: .destructive) {

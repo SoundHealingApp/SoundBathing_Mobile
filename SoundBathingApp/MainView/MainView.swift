@@ -26,6 +26,8 @@ struct MainView: View {
             }
             MainTabBarView(selectedTab: $selectedTab)
         }
+        .background(Color(.systemGroupedBackground))
+
     }
 }
 

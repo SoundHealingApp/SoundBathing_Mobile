@@ -66,6 +66,8 @@ struct ModernButton: View {
 
 struct CreateMeditationView: View {
     @StateObject var viewModel = CreatePracticeViewModel()
+    @State private var showConfirmationView = false
+    @Environment(\.dismiss) private var dismiss
 
     @State private var selectedPracticeType: MeditationCategory = .daily
 
@@ -88,7 +90,7 @@ struct CreateMeditationView: View {
         }
         return false
     }
-    
+
     private var isCreateButtonActive: Bool {
         if title != "" && description != "" && therapeuticPurpose != "" && audio != nil
             && image != nil {
@@ -102,7 +104,7 @@ struct CreateMeditationView: View {
         }
         return false
     }
-    
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -120,9 +122,9 @@ struct CreateMeditationView: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .animation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0), value: showErrorToast)
                     }
-                    
+
                     PracticesTopBar(selectedTopBar: $selectedPracticeType)
-                    
+
                     HStack {
                         Button(action: {
                             isShowingAudioPicker = true
@@ -132,13 +134,13 @@ struct CreateMeditationView: View {
                                     Circle()
                                         .fill(audio == nil ? Color(.systemGray5).opacity(0.25) : Color.indigo.opacity(0.15))
                                         .frame(width: 64, height: 64)
-                                    
+
                                     Image(systemName: "waveform")
                                         .font(.title2)
                                         .foregroundColor(audio == nil ? .gray : .indigo)
                                         .symbolVariant(audio == nil ? .none : .fill)
                                 }
-                                
+
                                 Text(audio == nil ? "Add audio" : "Change audio")
                                     .font(.custom(CustomFonts.MarcellusRegular.rawValue, size: 14))
                                     .foregroundColor(audio == nil ? .gray : .primary)
@@ -165,15 +167,16 @@ struct CreateMeditationView: View {
                                     Circle()
                                         .fill(image == nil ? Color(.systemGray5).opacity(0.25) : Color.indigo.opacity(0.15))
                                         .frame(width: 64, height: 64)
-                                    
+
                                     Image(systemName: "photo")
                                         .font(.title2)
                                         .foregroundColor(image == nil ? .gray : .indigo)
                                         .symbolVariant(image == nil ? .none : .fill)
                                 }
-                                
+
                                 Text(image == nil ? "Add image" : "Change image")
-                                    .font(.custom(CustomFonts.MarcellusRegular.rawValue, size: 14))                                        .foregroundColor(image == nil ? .gray : .primary)
+                                    .font(.custom(CustomFonts.MarcellusRegular.rawValue, size: 14))
+                                    .foregroundColor(image == nil ? .gray : .primary)
                                     .multilineTextAlignment(.center)
                             }
                             .frame(width: 150, height: 150)
@@ -188,21 +191,21 @@ struct CreateMeditationView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        
+
                         Spacer()
                     }
                     .padding(.horizontal)
-                    
+
                     // Название и описание
                     VStack(alignment: .leading, spacing: 12) {
                         NameFieldView(name: $title, placeholderName: "Title")
                         NameFieldView(name: $description, placeholderName: "Description")
                         NameFieldView(name: $therapeuticPurpose, placeholderName: "Therapeutic Purpose")
-                        
+
                         if selectedPracticeType == .restorative {
                             NameFieldView(name: $frequency, placeholderName: "Frequency")
                         }
-                        
+
                         if isPracticeCanBeCreated {
                             ModernButton(
                                 icon: "play.fill",
@@ -211,7 +214,7 @@ struct CreateMeditationView: View {
                                 action: { isShowingPlayerPreview = true }
                             )
                         }
-                        
+
                         CustomButtonView(text: "Create", isDisabled: !isCreateButtonActive) {
                             if let compressedImage = image?.jpegData(compressionQuality: 0.8) {
                                 Task {
@@ -231,14 +234,26 @@ struct CreateMeditationView: View {
                 }
                 .padding(.vertical)
             }
-            
+            .padding()
+
             if viewModel.isLoading {
                 Color.black.opacity(0.4) // Затемнение фона
                     .edgesIgnoringSafeArea(.all)
-                
+
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     .scaleEffect(2) // Увеличение индикатора
+            }
+
+            if showConfirmationView {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .transition(.opacity)
+                    .zIndex(1) // Убедимся, что confirmationView поверх
+
+                PracticeConfirmationView(isVisible: $showConfirmationView)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
             }
         }
         .navigationBarTitle("Create Practice", displayMode: .inline)
@@ -250,7 +265,14 @@ struct CreateMeditationView: View {
         }
         .background(Color(.systemBackground).edgesIgnoringSafeArea(.all))
         .onChange(of: viewModel.isSendSuccessfully) { _, newValue in
-
+            if newValue {
+                withAnimation {
+                    showConfirmationView = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    dismiss()
+                }
+            }
         }
         .onChange(of: viewModel.errorMessage) { _, newValue in
             if newValue != nil {
@@ -264,7 +286,6 @@ struct CreateMeditationView: View {
                 }
             }
         }
-        .padding()
         .sheet(isPresented: $isShowingImagePicker) {
             ImagePicker(image: $image)
         }
@@ -286,4 +307,66 @@ struct CreateMeditationView: View {
 
 #Preview {
     CreateMeditationView()
+}
+
+
+#Preview {
+    CreateMeditationView()
+}
+
+import SwiftUI
+
+struct PracticeConfirmationView: View {
+    @Binding var isVisible: Bool // Используем Binding для управления видимостью
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [.purple.opacity(0.1), .indigo.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 180, height: 180)
+
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(LinearGradient(
+                        colors: [.purple, .indigo],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ))
+            }
+
+            Text("Practice Saved!")
+                .font(.system(.title2, design: .rounded).bold())
+                .foregroundColor(.primary)
+
+            Spacer()
+        }
+        .frame(maxWidth: 300, maxHeight: 300)
+        .background(Color.white) // Белый фон
+        .cornerRadius(20)
+        .shadow(radius: 10)
+        .opacity(isVisible ? 1 : 0) // Плавное изменение прозрачности
+        .scaleEffect(isVisible ? 1 : 0.9) // Плавное изменение масштаба
+        .animation(.easeInOut(duration: 0.4), value: isVisible) // Плавная анимация появления
+        .onAppear {
+            withAnimation {
+                isVisible = true // Включаем видимость
+            }
+        }
+        .onTapGesture {
+            withAnimation {
+                isVisible = false // Закрываем вью по нажатию
+            }
+        }
+    }
+}
+
+#Preview {
+    PracticeConfirmationView(isVisible: .constant(true))
 }

@@ -74,7 +74,6 @@ class QuotesViewModel: ObservableObject {
     }
     
     /// Получение рандомной цитаты.
-    // TODO: сделать, чтобы не повторялись
     func getDailyRandomQuote() async -> Quote? {
         let currentQuote = UserDefaultsManager.shared.getCurrentDailyQuote()
         
