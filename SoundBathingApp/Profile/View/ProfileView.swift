@@ -13,10 +13,13 @@ struct ProfileView: View {
     @State private var selectedSection: ProfileSection? = nil
     @StateObject private var quotesViewModel = QuotesViewModel()
     @EnvironmentObject var userPermissionsVM: UserPermissionsViewModel
+    @EnvironmentObject var appVM: AppViewModel
+    @EnvironmentObject var signInVM: SignInViewModel
     @State private var canManagePractices = false
     @State private var canManageQuotes = false
     @State private var canManageLiveStreams = false
-
+    @State private var showingLogoutAlert = false
+    @State private var showingDeleteAccountAlert = false
     @State private var randomQuote: Quote = Quote(
         id: UUID().uuidString,
         author: "Anonymous",
@@ -37,7 +40,7 @@ struct ProfileView: View {
                 
                 dailyQuoteCard
                 adminFunctionsSection
-
+                accountManagementSection
             }
             .padding()
         }
@@ -89,6 +92,61 @@ struct ProfileView: View {
             }
         }
     }
+    
+    // MARK: - Account Management Section
+        private var accountManagementSection: some View {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Account Management")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.black)
+                
+                VStack(spacing: 12) {
+                    // Logout Button
+                    ActionButton(
+                        title: "Sign Out",
+                        icon: "rectangle.portrait.and.arrow.right",
+                        color: .blue,
+                        action: {
+                            showingLogoutAlert = true
+                        }
+                    )
+                    .alert(isPresented: $showingLogoutAlert) {
+                        Alert(
+                            title: Text("Confirm Sign Out"),
+                            message: Text("Are you sure you want to sign out?"),
+                            primaryButton: .destructive(Text("Sign Out")) {
+                                appVM.signOut()
+                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+                    
+                    // Delete Account Button
+                    ActionButton(
+                        title: "Delete Account",
+                        icon: "trash.fill",
+                        color: .red,
+                        action: {
+                            showingDeleteAccountAlert = true
+                        }
+                    )
+                    .alert(isPresented: $showingDeleteAccountAlert) {
+                        Alert(
+                            title: Text("Delete Account Permanently"),
+                            message: Text("This action cannot be undone. All your data will be erased."),
+                            primaryButton: .destructive(Text("Delete")) {
+                                Task {
+                                    await                             signInVM.sendDeleteAccountRequest(id: KeyChainManager.shared.getUserId() ?? "")
+                                    
+                                    appVM.deleteAccountAndResetApp()
+                                }
+                                                            },
+                            secondaryButton: .cancel()
+                        )
+                    }
+                }
+            }
+        }
     
     // MARK: - Дополнительные элементы
     private var dailyQuoteCard: some View {
@@ -143,6 +201,33 @@ struct NavigationButton: View {
     }
 }
 
+// MARK: - Action Button Component
+struct ActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(color)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .font(.system(size: 18, weight: .medium))
+                
+                Spacer()
+            }
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(12)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
 
 #Preview {
     ProfileView()

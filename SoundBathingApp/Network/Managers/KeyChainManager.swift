@@ -8,7 +8,6 @@
 import Foundation
 import SwiftKeychainWrapper
 
-// TODO: получение роли пользователя
 class KeyChainManager {
     static let shared = KeyChainManager()
     private let jwtTokenKey: String = "jwt_token"
@@ -49,4 +48,7 @@ class KeyChainManager {
         return KeychainWrapper.standard.string(forKey: userPasswordHash)
     }
 
+    func deletePasswordHash() {
+        KeychainWrapper.standard.removeObject(forKey: userPasswordHash)
+    }
 }

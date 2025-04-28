@@ -33,6 +33,9 @@ class UserDefaultsManager {
         return nil
     }
     
+    func deleteUserEmail() {
+        UserDefaults.standard.removeObject(forKey: UserDefaultsManager.userEmailKey)
+    }
     // MARK: - User name.
     func saveUserName(name: String) {
         UserDefaults.standard.set(name, forKey: UserDefaultsManager.userNameKey)
@@ -45,6 +48,9 @@ class UserDefaultsManager {
         return nil
     }
     
+    func deleteUserName() {
+        UserDefaults.standard.removeObject(forKey: UserDefaultsManager.userNameKey)
+    }
     // MARK: - User surname.
     func saveUserSurname(surname: String) {
         UserDefaults.standard.set(surname, forKey: UserDefaultsManager.userSurnameKey)
@@ -57,6 +63,9 @@ class UserDefaultsManager {
         return nil
     }
     
+    func deleteUserSurname() {
+        UserDefaults.standard.removeObject(forKey: UserDefaultsManager.userSurnameKey)
+    }
     // MARK: - User birthDate.
     func saveUserBirthDate(birthDate: String) {
         UserDefaults.standard.set(birthDate, forKey: UserDefaultsManager.birthDateKey)
@@ -69,6 +78,9 @@ class UserDefaultsManager {
         return nil
     }
     
+    func deleteUserBirthDate() {
+        UserDefaults.standard.removeObject(forKey: UserDefaultsManager.birthDateKey)
+    }
     // MARK: - User emoji.
     func saveUserEmoji(emoji: String) {
         UserDefaults.standard.set(emoji, forKey: UserDefaultsManager.userEmojiKey)
@@ -116,5 +128,4 @@ class UserDefaultsManager {
         let decoder = JSONDecoder()
         return try? decoder.decode(Quote.self, from: data)
     }
-    
 }

@@ -24,6 +24,7 @@ class NetworkManager: NSObject, URLSessionDelegate {
             return .failure(.invalidUrl)
         }
         
+        
         let request: URLRequest
         if let multiData = multipartFormData {
             // Создаем multipart/form-data запрос
@@ -40,7 +41,14 @@ class NetworkManager: NSObject, URLSessionDelegate {
         }
         
         print(requestDescription(request))
-            
+        print("""
+        🌐 Request Debug Info:
+        URL: \(url)
+        Method: \(method.rawValue)
+        Token exists: \(KeyChainManager.shared.getToken() != nil)
+        Headers: \(request.allHTTPHeaderFields ?? [:])
+        Body: \(body != nil ? String(data: body!, encoding: .utf8) ?? "nil" : "nil")
+        """)
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         
         do {
@@ -88,6 +96,7 @@ class NetworkManager: NSObject, URLSessionDelegate {
             // Обработка ошибки сети
             return .failure(.networkError(error.localizedDescription))
         }
+        
     }
     
     // MARK: - Загрузка изображения
@@ -188,7 +197,10 @@ class NetworkManager: NSObject, URLSessionDelegate {
         if let token = KeyChainManager.shared.getToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("gzip, deflate, br", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+            
         if let body = body {
             request.httpBody = body
         }
@@ -264,21 +276,38 @@ class NetworkManager: NSObject, URLSessionDelegate {
         if let token = KeyChainManager.shared.getToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
         return request
     }
     
     // MARK: - Заглушка проверки сертификата
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        let host = challenge.protectionSpace.host
+        print("🔐 Handling SSL challenge for:", host)
+        
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           let serverTrust = challenge.protectionSpace.serverTrust,
-           challenge.protectionSpace.host == "localhost" {
-            let credential = URLCredential(trust: serverTrust)
-            completionHandler(.useCredential, credential)
-            return
+           let serverTrust = challenge.protectionSpace.serverTrust {
+            
+            // Разрешаем оба варианта локального хоста
+            if ["localhost", "127.0.0.1"].contains(host) {
+                print("✅ Trusting localhost SSL")
+                completionHandler(.useCredential, URLCredential(trust: serverTrust))
+                return
+            }
         }
         completionHandler(.performDefaultHandling, nil)
     }
+//    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+//        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+//           let serverTrust = challenge.protectionSpace.serverTrust,
+//           challenge.protectionSpace.host == "localhost" {
+//            let credential = URLCredential(trust: serverTrust)
+//            completionHandler(.useCredential, credential)
+//            return
+//        }
+//        completionHandler(.performDefaultHandling, nil)
+//    }
     
     // MARK: - Debug methods
     private func requestDescription(_ request: URLRequest) -> String {

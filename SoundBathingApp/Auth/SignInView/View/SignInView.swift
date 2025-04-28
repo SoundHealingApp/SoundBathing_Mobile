@@ -10,7 +10,7 @@ import SwiftUI
 struct SignInView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     
-    @StateObject var viewModel = SignInViewModel()
+    @EnvironmentObject var viewModel: SignInViewModel
     
     @State private var email = ""
     @State private var password = ""
@@ -80,6 +80,7 @@ struct SignInView: View {
                 }
                 .padding(.top, 15)
             }
+            .navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $shouldShowSignUpView, destination: {
                 RegisterView()
             })

@@ -14,7 +14,7 @@ struct SoundBathingAppApp: App {
     @StateObject private var appViewModel = AppViewModel()
     @StateObject private var userPermissionsViewModel = UserPermissionsViewModel()
     @StateObject private var liveStreamViewModel = LiveStreamViewModel()
-
+    @StateObject private var signInViewModel = SignInViewModel()
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -22,6 +22,7 @@ struct SoundBathingAppApp: App {
                 .environmentObject(practicesVM)
                 .environmentObject(userPermissionsViewModel)
                 .environmentObject(liveStreamViewModel)
+                .environmentObject(signInViewModel)
                 .onAppear {
                     appViewModel.setupBackgroundTasks()
                     
@@ -75,7 +76,7 @@ enum AppRoute: Hashable {
     case main
 }
 
-
+@MainActor
 class AppViewModel: ObservableObject {
     @Published var navigationPath = NavigationPath()
     @Published var showOnboarding = !UserDefaults.standard.bool(forKey: "completedOnboarding")
@@ -104,7 +105,7 @@ class AppViewModel: ObservableObject {
         navigate(to: .birthEntering)
     }
     
-    func hideWelcomeQuote() {
+    func hideWelcomeQuote() async {
         showWelcomeQuote = false
         
         if shouldRegister() {
@@ -114,7 +115,7 @@ class AppViewModel: ObservableObject {
                 navigate(to: .signIn)
             }
         }
-        else if shouldSignIn() {
+        else if await shouldSignIn() {
             navigate(to: .signIn)
         } else {
             checkSurveyConditions()
@@ -129,9 +130,19 @@ class AppViewModel: ObservableObject {
     }
     
     /// Должен ли пользователь войти в систему.
-    func shouldSignIn() -> Bool {
+    func shouldSignIn() async -> Bool {
         guard let token = KeyChainManager.shared.getToken() else {
             /// Токена нет - нужно войти
+            return true
+        }
+        
+        guard let id = KeyChainManager.shared.getUserId() else {
+            return true
+        }
+        
+        let isUserExists = await checkUserExistence(id: id)
+
+        if !isUserExists {
             return true
         }
         
@@ -253,5 +264,70 @@ class AppViewModel: ObservableObject {
     
     func navigate(to route: AppRoute) {
         navigationPath.append(route)
+    }
+    
+    func signOut() {
+        clearAllUserData()
+
+        navigateToRegisterView()
+    }
+    
+    func deleteAccountAndResetApp() {
+        // 1. Очищаем все пользовательские данные
+        clearAllUserData()
+        
+        // 2. Сбрасываем состояние приложения
+        resetAppState()
+        
+        // 3. Перенаправляем на экран регистрации
+        navigateToRegisterView()
+    }
+    
+    private func clearAllUserData() {
+        // Очищаем UserDefaults
+        UserDefaultsManager.shared.deleteUserEmail()
+        UserDefaultsManager.shared.deleteUserName()
+        UserDefaultsManager.shared.deleteUserSurname()
+        UserDefaultsManager.shared.deleteUserBirthDate()
+
+        
+        // Очищаем Keychain
+        KeyChainManager.shared.deleteToken()
+//        KeyChainManager.shared.deleteUserId()
+        KeyChainManager.shared.deletePasswordHash()
+
+    }
+    
+    private func resetAppState() {
+        // Сбрасываем все флаги состояния
+        showOnboarding = true
+        showWelcomeQuote = true
+//        navigationPath = NavigationPath()
+        
+        // Отменяем все уведомления
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+    
+    private func navigateToRegisterView() {
+        // Полностью очищаем стек навигации и устанавливаем RegisterView как корневой
+        navigationPath.removeLast(navigationPath.count)
+        navigate(to: .signIn)
+    }
+    
+    func checkUserExistence(id: String) async -> Bool {
+        let endPoint: String = "\(EndPoints.GetUserDataByUserId)/\(id)"
+        
+        
+        let result: Result<EmptyResponse, NetworkError> = await NetworkManager.shared.perfomeRequest(
+            endPoint: endPoint,
+            method: .GET
+        )
+        
+        switch result {
+            case .success(_):
+            return true
+            case .failure(_):
+                return false
+        }
     }
 }

@@ -65,7 +65,9 @@ struct WelcomeQuoteView: View {
 
                 /// Кнопка продолжения
                 Button(action: {
-                    appViewModel.hideWelcomeQuote()
+                    Task {
+                        await appViewModel.hideWelcomeQuote()
+                    }
                 }) {
                     HStack {
                         Text("Continue")
@@ -123,7 +125,9 @@ struct WelcomeQuoteView: View {
     
     private func dismissAfterAnimation() {
         withAnimation(.easeOut(duration: 0.3)) {
-            appViewModel.hideWelcomeQuote()
+            Task {
+                await appViewModel.hideWelcomeQuote()
+            }
         }
     }
     

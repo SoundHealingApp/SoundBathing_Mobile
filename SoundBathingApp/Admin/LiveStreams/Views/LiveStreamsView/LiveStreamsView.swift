@@ -159,7 +159,7 @@ struct LiveStreamsView: View {
             Task {
                 isLoading = true /// Показываем индикатор загрузки
                 await viewModel.getUpcomingStreams()
-//                await viewModel.getPastStreams()
+                await viewModel.getPastStreams()
                 isLoading = false /// Скрываем индикатор после загрузки
             }
         }

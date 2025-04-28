@@ -84,7 +84,6 @@ class LiveStreamViewModel: ObservableObject {
         
         switch result {
             case .success(let liveStreamsDtos):
-            // TODO: добавлять не в настоящие а в прошедшие
             createLiveStreamsModels(liveStreamsDtos: liveStreamsDtos)
             self.errorMessage = nil
             case .failure(let error):

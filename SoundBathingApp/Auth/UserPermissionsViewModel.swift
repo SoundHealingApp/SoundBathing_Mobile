@@ -9,7 +9,6 @@ import Foundation
 
 @MainActor
 class UserPermissionsViewModel : ObservableObject {
-    
     public func CanCurrentUserManagePracticesAsync() async -> Bool {
         let userId = KeyChainManager.shared.getUserId()
         let requiredPermission = Permissions.MeditationsAdministration
