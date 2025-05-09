@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LiveStream : Identifiable, Codable, Equatable {
+struct LiveStream : Identifiable, Codable, Equatable, Hashable {
     let id: String
     
     var title: String
@@ -30,5 +30,13 @@ struct LiveStream : Identifiable, Codable, Equatable {
         self.therapeuticPurpose = therapeuticPurpose
         self.startDateTime = startDateTime
         self.youTubeUrl = youTubeUrl
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id) // Используем только id для хэширования
+    }
+
+    static func == (lhs: LiveStream, rhs: LiveStream) -> Bool {
+        return lhs.id == rhs.id // Сравнение только по id
     }
 }
