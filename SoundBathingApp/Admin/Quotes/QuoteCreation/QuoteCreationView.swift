@@ -20,8 +20,8 @@ struct QuoteCreationView: View {
     @State private var text: String = ""
     @State private var animateElements = false
     @State private var isKeyboardVisible = false
-    
-    // TODO: точно надо?
+    @State private var isSaving = false
+
     let editingQuote: Quote?
     
     init(quote: Quote? = nil) {
@@ -72,14 +72,14 @@ struct QuoteCreationView: View {
                         }
                     }
                     PrimaryButton(
-                        title: step == .author ? "Continue" : "Save",
-                        isActive: isPrimaryButtonActive
+                        title: step == .author ? "Continue" : (isSaving ? "Saving..." : "Save"),
+                        isActive: isPrimaryButtonActive && !isSaving
                     ) {
                         Task {
                             await handlePrimaryAction()
                         }
                     }
-                    .disabled(!isPrimaryButtonActive)
+                    .disabled(!isPrimaryButtonActive || isSaving)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, isKeyboardVisible ? 8 : 24)
@@ -121,6 +121,14 @@ struct QuoteCreationView: View {
             }
             
         case .text:
+            guard !isSaving else { return }
+            isSaving = true
+            
+            defer {
+                // Обнуляем флаг после выхода из функции
+                isSaving = false
+            }
+            
             if let existing = editingQuote {
                 var updated = existing
                 updated.author = author

@@ -31,12 +31,4 @@ struct LiveStream : Identifiable, Codable, Equatable, Hashable {
         self.startDateTime = startDateTime
         self.youTubeUrl = youTubeUrl
     }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id) // Используем только id для хэширования
-    }
-
-    static func == (lhs: LiveStream, rhs: LiveStream) -> Bool {
-        return lhs.id == rhs.id // Сравнение только по id
-    }
 }
