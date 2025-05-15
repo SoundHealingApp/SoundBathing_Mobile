@@ -7,24 +7,102 @@
 
 import Foundation
 import AVFAudio
+import UIKit
+import MediaPlayer
 
 class PlayerViewModel: ObservableObject {
-    @Published var audionPlayer: AVAudioPlayer?
+    static let shared = PlayerViewModel()
+    
     @Published var isPlaying = false
     @Published var currentTime: TimeInterval = 0.0
     @Published var totalTime: TimeInterval = 0.0
     
+    @Published var audio: Data?
+    @Published var title: String = ""
+    @Published var therapeuticPurpose: String = ""
+    @Published var frequency: String = ""
+    @Published var practiceId: String = ""
+    @Published var image: UIImage?
+    @Published var isFullPlayerPresented: Bool = false
+    @Published var isShowingFullPlayer: Bool = false
+
+    private var audionPlayer: AVAudioPlayer?
+    
+    private init() {}
+    
+    var hasActivePractice: Bool {
+        !practiceId.isEmpty
+    }
+    
     // MARK: - Methods
-    func getAudioInfo(song: Data?) {
-        if let song = song {
-            do {
-                self.audionPlayer = try AVAudioPlayer(data: song)
-                totalTime = audionPlayer?.duration ?? 0.0
-            } catch {
-                print("Error while getting audio info")
+    func configure(with practice: Practice, audio: Data) {
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        
+        self.audio = audio
+
+        do {
+            
+            self.audionPlayer = try AVAudioPlayer(data: audio)
+            self.audionPlayer?.prepareToPlay()
+            self.totalTime = audionPlayer?.duration ?? 0
+
+            // Сохраняем информацию о треке
+            self.title = practice.title
+            self.image = practice.image
+            self.therapeuticPurpose = practice.therapeuticPurpose
+            self.frequency = practice.frequency != nil ? String(format: "%.1f Hz", practice.frequency!) : ""
+            self.practiceId = practice.id
+            
+            setupRemoteTransportControls()
+            setupNowPlayingInfo()
+            
+        } catch {
+            print("Ошибка воспроизведения: \(error)")
+        }
+    }
+    
+    func setupNowPlayingInfo() {
+        var nowPlayingInfo: [String: Any] = [
+            MPMediaItemPropertyTitle: title, // Название практики
+            MPMediaItemPropertyArtist: therapeuticPurpose, // Терапевтическая цель
+            MPMediaItemPropertyAlbumTitle: frequency, // Частота
+            MPMediaItemPropertyPlaybackDuration: totalTime,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
+            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
+        ]
+
+        if let image = image {
+            let artwork = MPMediaItemArtwork(boundsSize: CGSize(width: 600, height: 600)) { _ in
+                return image
             }
-        } else {
-            print("Error while getting audio")
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+        }
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+
+    
+    func getAudioInfo(song: Data?, title: String, image: UIImage?, therapeuticPurpose: String, frequency: String, practiceId: String) {
+        // Настройка AVAudioSession
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        try? AVAudioSession.sharedInstance().setActive(true)
+
+        guard let song = song else { return }
+
+        do {
+            self.audionPlayer = try AVAudioPlayer(data: song)
+            self.audionPlayer?.prepareToPlay()
+            self.totalTime = audionPlayer?.duration ?? 0
+
+            // Сохраняем информацию о треке
+            self.title = title
+            self.image = image
+            self.therapeuticPurpose = therapeuticPurpose
+            self.frequency = frequency
+            self.practiceId = practiceId
+        } catch {
+            print("Ошибка воспроизведения: \(error)")
         }
     }
     
@@ -35,6 +113,18 @@ class PlayerViewModel: ObservableObject {
             self.audionPlayer?.play()
         }
         isPlaying.toggle()
+        setupNowPlayingInfo()
+    }
+    
+    func resetAndPlayNewAudio() {
+        if isPlaying {
+            self.audionPlayer?.pause()
+            self.audionPlayer?.play()
+            isPlaying = true
+        } else {
+            self.audionPlayer?.play()
+            isPlaying = true
+        }        
     }
     
     func stopAudio() {
@@ -50,6 +140,7 @@ class PlayerViewModel: ObservableObject {
         guard let player = audionPlayer else { return }
         currentTime = player.currentTime
         isPlaying = player.isPlaying
+        setupNowPlayingInfo()
     }
     
     func formateDuration(duration: TimeInterval) -> String {
@@ -61,5 +152,35 @@ class PlayerViewModel: ObservableObject {
         
         return formatter.string(from: duration) ?? ""
     }
+    
+    func setupRemoteTransportControls() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.addTarget { [unowned self] _ in
+            if !isPlaying {
+                playPauseAudio()
+                return .success
+            }
+            return .commandFailed
+        }
+
+        commandCenter.pauseCommand.addTarget { [unowned self] _ in
+            if isPlaying {
+                playPauseAudio()
+                return .success
+            }
+            return .commandFailed
+        }
+
+        commandCenter.changePlaybackPositionCommand.isEnabled = true
+        commandCenter.changePlaybackPositionCommand.addTarget { [unowned self] event in
+            if let positionEvent = event as? MPChangePlaybackPositionCommandEvent {
+                seekAudio(time: positionEvent.positionTime)
+                return .success
+            }
+            return .commandFailed
+        }
+    }
+
 
 }

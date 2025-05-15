@@ -10,7 +10,7 @@ import UIKit
 
 class NetworkManager: NSObject, URLSessionDelegate {
     static let shared = NetworkManager()
-    private let host = "http://localhost:5046"
+    private let host = "https://sound-wellness-application.azurewebsites.net"
 
     // MARK: - Выполнение запроса
     func perfomeRequest<T: Codable>(
@@ -41,14 +41,7 @@ class NetworkManager: NSObject, URLSessionDelegate {
         }
         
         print(requestDescription(request))
-        print("""
-        🌐 Request Debug Info:
-        URL: \(url)
-        Method: \(method.rawValue)
-        Token exists: \(KeyChainManager.shared.getToken() != nil)
-        Headers: \(request.allHTTPHeaderFields ?? [:])
-        Body: \(body != nil ? String(data: body!, encoding: .utf8) ?? "nil" : "nil")
-        """)
+
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         
         do {
@@ -282,22 +275,6 @@ class NetworkManager: NSObject, URLSessionDelegate {
     }
     
     // MARK: - Заглушка проверки сертификата
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        let host = challenge.protectionSpace.host
-        print("🔐 Handling SSL challenge for:", host)
-        
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           let serverTrust = challenge.protectionSpace.serverTrust {
-            
-            // Разрешаем оба варианта локального хоста
-            if ["localhost", "127.0.0.1"].contains(host) {
-                print("✅ Trusting localhost SSL")
-                completionHandler(.useCredential, URLCredential(trust: serverTrust))
-                return
-            }
-        }
-        completionHandler(.performDefaultHandling, nil)
-    }
 //    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 //        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
 //           let serverTrust = challenge.protectionSpace.serverTrust,

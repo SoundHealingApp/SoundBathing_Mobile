@@ -8,45 +8,60 @@
 import SwiftUI
 
 struct FloatingParticlesView: View {
+    let particleColor: Color
     @State private var particles: [Particle] = []
     
-    /// Модель данных частицы.
-    struct Particle: Identifiable {
-        let id = UUID()
+    struct Particle {
         var x: CGFloat
         var y: CGFloat
         var size: CGFloat
-        var speed: CGFloat /// Скорость перемещения.
         var opacity: Double
+        var speed: Double
+        var xOffset: Double
+        var yOffset: Double
+    }
+    
+    init(particleColor: Color = Color(red: 0.7, green: 0.4, blue: 1.0)) {
+        self.particleColor = particleColor
+        // Initialize particles
+        _particles = State(initialValue: (0..<50).map { _ in
+            Particle(
+                x: CGFloat.random(in: 0..<1),
+                y: CGFloat.random(in: 0..<1),
+                size: CGFloat.random(in: 1..<3),
+                opacity: Double.random(in: 0.1..<0.5),
+                speed: Double.random(in: 2..<5),
+                xOffset: Double.random(in: -0.5..<0.5),
+                yOffset: Double.random(in: -0.5..<0.5)
+            )
+        })
     }
     
     var body: some View {
         GeometryReader { geometry in
-            ForEach(particles) { particle in
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: particle.size, height: particle.size)
-                    .position(x: particle.x, y: particle.y)
-                    .opacity(particle.opacity)
-                    .animation(.linear(duration: particle.speed)
-                        .repeatForever(autoreverses: true), value: particle.opacity)
+            ZStack {
+                ForEach(particles.indices, id: \.self) { index in
+                    Circle()
+                        .fill(particleColor)
+                        .frame(width: particles[index].size, height: particles[index].size)
+                        .position(
+                            x: particles[index].x * geometry.size.width,
+                            y: particles[index].y * geometry.size.height
+                        )
+                        .opacity(particles[index].opacity)
+                        .onAppear {
+                            withAnimation(
+                                Animation.easeInOut(duration: particles[index].speed)
+                                    .repeatForever(autoreverses: true)
+                            ) {
+                                particles[index].x += CGFloat(particles[index].xOffset)
+                                particles[index].y += CGFloat(particles[index].yOffset)
+                                particles[index].opacity = Double.random(in: 0.1..<0.8)
+                            }
+                        }
+                }
             }
         }
-        .onAppear {
-            /// Создаем 30 частиц.
-            var newParticles: [Particle] = []
-            for _ in 0..<30 {
-                newParticles.append(
-                    Particle(
-                        x: CGFloat.random(in: 0..<UIScreen.main.bounds.width),
-                        y: CGFloat.random(in: 0..<UIScreen.main.bounds.height),
-                        size: CGFloat.random(in: 1..<4),
-                        speed: Double.random(in: 4..<8),
-                        opacity: Double.random(in: 0.02..<0.1)
-                    )
-                )
-            }
-            particles = newParticles
-        }
+        .ignoresSafeArea()
     }
 }

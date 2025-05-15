@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// TODO: изменить шрифт
-
 /// Заголовок для секции
 struct SectionHeader: View {
     let title: String

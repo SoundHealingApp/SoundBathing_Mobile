@@ -76,7 +76,7 @@ struct OnboardingView: View {
                 }
             }
         }
-        .onChange(of: currentPage) { _ in
+        .onChange(of: currentPage) { _, _ in
             showHint = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 withAnimation {

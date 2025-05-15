@@ -20,6 +20,7 @@ struct PracticesView: View {
                 if let nearestStream = nearestLiveStream {
                     LiveStreamAnnouncementView(stream: nearestStream)
                 }
+                
                 /// Guided Daily Moments
                 if !viewModel.practices.filter({$0.meditationType == MeditationCategory.daily}).isEmpty {
                     
@@ -67,7 +68,11 @@ struct PracticesView: View {
                     }
                     .padding(.horizontal, 10)
                 }
+                
+                Spacer()
+                    .frame(height: 100) // Высота таб-бара + дополнительный отступ
             }
+            .frame(maxWidth: .infinity)
             .padding()
         }
         .shadow(color: .black.opacity(0.2), radius: 8, x: 5, y: 8)

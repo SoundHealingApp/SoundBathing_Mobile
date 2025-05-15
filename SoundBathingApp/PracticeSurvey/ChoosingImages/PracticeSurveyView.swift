@@ -122,6 +122,7 @@ struct MeditationSurveyView: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Skip") {

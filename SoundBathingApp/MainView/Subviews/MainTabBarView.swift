@@ -9,25 +9,46 @@ import SwiftUI
 
 struct MainTabBarView: View {
     @Binding var selectedTab: MainTapBar
+    @EnvironmentObject var audioPlayer: PlayerViewModel
     
     var body: some View {
-        HStack(alignment: .center, spacing: 60) {
-            tabBarButton(
-                tab: .likedPractices,
-                iconName: selectedTab == .likedPractices ? "heart.fill" : "heart"
-            )
+        VStack(spacing: 0) {
+            // Только если есть активная практика и не открыт полный плеер
+            if audioPlayer.hasActivePractice && !audioPlayer.isShowingFullPlayer {
+                MiniPlayerView()
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
             
-            tabBarButton(
-                tab: .allPractices,
-                iconName:  "waveform"
-            )
-            
-            tabBarButton(
-                tab: .profile,
-                iconName: selectedTab == .profile ? "person.crop.circle.fill" : "person.crop.circle"
-            )
+            HStack {
+                Spacer()
+
+                tabBarButton(
+                    tab: .likedPractices,
+                    iconName: selectedTab == .likedPractices ? "heart.fill" : "heart"
+                )
+
+                Spacer()
+
+                tabBarButton(
+                    tab: .allPractices,
+                    iconName: "waveform"
+                )
+
+                Spacer()
+
+                tabBarButton(
+                    tab: .profile,
+                    iconName: selectedTab == .profile ? "person.crop.circle.fill" : "person.crop.circle"
+                )
+
+                Spacer()
+            }
+            .frame(height: 50)
+            .background(Color(.systemGroupedBackground))
         }
-        .frame(height: 38)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemGroupedBackground))
+        .ignoresSafeArea(edges: .bottom)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedTab)
     }
     
@@ -43,7 +64,7 @@ struct MainTabBarView: View {
                     .symbolEffect(.bounce, value: selectedTab == tab)
                     .font(.title2)
                     .fontWeight(.medium)
-                
+
                 if selectedTab == tab {
                     Circle()
                         .fill(Color.black)
@@ -58,4 +79,5 @@ struct MainTabBarView: View {
 
 #Preview {
     MainTabBarView(selectedTab: .constant(.allPractices))
+        .environmentObject(PlayerViewModel.shared)
 }

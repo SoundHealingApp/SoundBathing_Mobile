@@ -13,7 +13,7 @@ class PersonalInformationViewModel : ObservableObject {
     @Published var surname: String = "Surname"
     @Published var email: String = "Email"
     @Published var birthDate: Date = Date.now
-    @Published var selectedEmoji: String = "😊"
+    @Published var selectedEmoji: String = "🦄"
     @Published var errorMessage: String? = nil
 
     var isFormValid: Bool {
@@ -21,9 +21,9 @@ class PersonalInformationViewModel : ObservableObject {
     }
     
     private let emojis = [
-        "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯",
-        "🦁", "🐸", "🐵", "🐧", "🐦", "🦉", "🦄",
-        "👽", "😎", "🤩", "🥳", "😍",
+        "🦊", "🐻", "🐼", "🐨", "🐯",
+        "🦁", "🐸", "🐵", "🦄",
+        "👽", "🤩", "🥳", "😍",
     ]
     
     private let userDefaultsManager = UserDefaultsManager.shared
@@ -128,6 +128,6 @@ class PersonalInformationViewModel : ObservableObject {
     }
     
     private func generateRandomEmoji() -> String {
-        emojis.randomElement() ?? "😄"
+        emojis.randomElement() ?? "🦄"
     }
 }

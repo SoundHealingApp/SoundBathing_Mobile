@@ -8,29 +8,37 @@
 import SwiftUI
 
 struct MainView: View {
-    @State var selectedTab: MainTapBar = .allPractices
     @EnvironmentObject var practicesVM: GetPracticesViewModel
-//    @StateObject var getPracticesViewModel = GetPracticesViewModel()
+    @EnvironmentObject var playerVM: PlayerViewModel
+    @EnvironmentObject var appViewModel: AppViewModel
     
     var body: some View {
-        VStack {
+        ZStack(alignment: .bottom) {
             Group {
-                switch selectedTab {
+                switch appViewModel.selectedTab {
                 case .allPractices:
-                    PracticesView()
+                    NavigationStack {
+                        PracticesView()
+                    }
                 case .likedPractices:
-                    LikedPracticesView()
+                    NavigationStack {
+                        LikedPracticesView()
+                    }
                 case .profile:
-                    ProfileView()
+                    NavigationStack {
+                        ProfileView()
+                    }
                 }
             }
-            MainTabBarView(selectedTab: $selectedTab)
+
+            if playerVM.isShowingFullPlayer {
+                PlayerView(showHiddenButton: true)
+                    .zIndex(3)
+            }
+            
+            MainTabBarView(selectedTab: $appViewModel.selectedTab)
+                .zIndex(2)
         }
         .background(Color(.systemGroupedBackground))
-
     }
-}
-
-#Preview {
-    MainView()
 }

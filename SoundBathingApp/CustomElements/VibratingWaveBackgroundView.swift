@@ -59,7 +59,7 @@ struct VibratingWaveBackgroundView: View {
                         path.closeSubpath()
                         
                         // Разные стили для каждого слоя
-                        let opacity = 0.7 - Double(i) * 0.12
+                        _ = 0.7 - Double(i) * 0.12
                         let lineWidth: CGFloat = i == 3 ? 3 : (i == 2 || i == 4 ? 2 : 1)
                         
                         context.stroke(

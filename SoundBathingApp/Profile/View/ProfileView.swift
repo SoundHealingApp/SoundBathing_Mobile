@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// 1) Выйти из профиля
-// 2) Сменить язык
 struct ProfileView: View {
     @State private var selectedSection: ProfileSection? = nil
     @StateObject private var quotesViewModel = QuotesViewModel()
@@ -25,6 +23,7 @@ struct ProfileView: View {
         author: "Anonymous",
         text: "Don’t compare someone’s middle to your beginning."
     )
+    @EnvironmentObject var vm: PlayerViewModel
 
     enum ProfileSection {
         case quotes
@@ -33,32 +32,38 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                UserPersonInformationCard()
-                    .padding(.bottom, 8)
-                
-                dailyQuoteCard
-                adminFunctionsSection
-                accountManagementSection
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    UserPersonInformationCard()
+                        .padding(.bottom, 8)
+                    
+                    dailyQuoteCard
+                    adminFunctionsSection
+                    accountManagementSection
+                    
+                    // Добавляем прозрачный Spacer для создания отступа
+                    Spacer()
+                        .frame(height: 100) // Высота таб-бара + дополнительный отступ
+                }
+                .padding()
             }
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .navigationDestination(item: $selectedSection) { section in
-            switch section {
-            case .quotes:
-                QuotesView()
-            case .liveStreams:
-                LiveStreamsView()
-            case .practices:
-                CreateMeditationView()
+            .background(Color(.systemGroupedBackground))
+            .navigationDestination(item: $selectedSection) { section in
+                switch section {
+                case .quotes:
+                    QuotesView()
+                case .liveStreams:
+                    LiveStreamsView()
+                case .practices:
+                    CreateMeditationView()
+                }
             }
-        }
-        .task {
-            canManagePractices = await userPermissionsVM.CanCurrentUserManagePracticesAsync()
-            canManageQuotes = await userPermissionsVM.CanCurrentUserManageQuotesAsync()
-            canManageLiveStreams = await userPermissionsVM.CanCurrentUserManageLiveStreamsAsync()
+            .task {
+                canManagePractices = await userPermissionsVM.CanCurrentUserManagePracticesAsync()
+                canManageQuotes = await userPermissionsVM.CanCurrentUserManageQuotesAsync()
+                canManageLiveStreams = await userPermissionsVM.CanCurrentUserManageLiveStreamsAsync()
+            }
         }
     }
     
@@ -116,6 +121,7 @@ struct ProfileView: View {
                             message: Text("Are you sure you want to sign out?"),
                             primaryButton: .destructive(Text("Sign Out")) {
                                 appVM.signOut()
+                                vm.stopAudio()
                             },
                             secondaryButton: .cancel()
                         )
@@ -136,9 +142,10 @@ struct ProfileView: View {
                             message: Text("This action cannot be undone. All your data will be erased."),
                             primaryButton: .destructive(Text("Delete")) {
                                 Task {
-                                    await                             signInVM.sendDeleteAccountRequest(id: KeyChainManager.shared.getUserId() ?? "")
+                                    await signInVM.sendDeleteAccountRequest(id: KeyChainManager.shared.getUserId() ?? "")
                                     
                                     appVM.deleteAccountAndResetApp()
+                                    vm.stopAudio()
                                 }
                                                             },
                             secondaryButton: .cancel()

@@ -10,6 +10,7 @@ import SwiftUI
 struct RecommendationsView: View {
     @EnvironmentObject var viewModel: GetPracticesViewModel
     @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var vm: PlayerViewModel
 
     @State private var selectedRecommendation: Practice?
     @State private var isLoadingButton = false
@@ -77,6 +78,8 @@ struct RecommendationsView: View {
                                     await MainActor.run {
                                         var updatedPractice = selectedPractice
                                         updatedPractice.audio = audio
+                                        vm.configure(with: selectedPractice, audio: audio)
+
                                         selectedPracticeToPlay = updatedPractice
                                     }
                                 }
@@ -131,17 +134,7 @@ struct RecommendationsView: View {
             }
         }
         .navigationDestination(item: $selectedPracticeToPlay) { practice in
-            if let audio = practice.audio {
-                PlayerView(
-                    showFullPlayer: true,
-                    audio: .constant(audio),
-                    image: .constant(practice.image),
-                    title: .constant(practice.title),
-                    therapeuticPurpose: .constant(practice.therapeuticPurpose),
-                    frequency: .constant(practice.frequency != nil ? String(format: "%.1f Hz", practice.frequency!) : ""),
-                    practiceId: .constant(practice.id)
-                )
-            }
+            PlayerView(showHiddenButton: false)
         }
         .task {
             /// Запускаем фоновую аудио загрузку при появлении

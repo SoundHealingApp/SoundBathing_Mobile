@@ -190,7 +190,7 @@ class QuotesViewModel: ObservableObject {
     
     /// Сохранение цитаты и временик следующего обновления в UserDefaults
     private func saveQuote(quoteDto: QuotesResponseDto) -> Quote {
-        var quote = Quote(id: quoteDto.id, author: quoteDto.author, text: quoteDto.text)
+        let quote = Quote(id: quoteDto.id, author: quoteDto.author, text: quoteDto.text)
         
         UserDefaultsManager.shared.saveCurrentDailyQuote(quote)
         UserDefaultsManager.shared.saveNextQuoteUpdateDate()

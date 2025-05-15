@@ -7,7 +7,7 @@
 
 import SwiftUI
 import AVKit
-// TODO: улучшить дизайн
+
 // MARK: - Компоненты интерфейса
 
 struct ModernButton: View {
@@ -233,16 +233,13 @@ struct CreateMeditationView: View {
                     .padding(.horizontal)
                 }
                 .padding(.vertical)
+                Spacer()
+                    .frame(height: 100) // Высота таб-бара + дополнительный отступ
             }
             .padding()
 
             if viewModel.isLoading {
-                Color.black.opacity(0.4) // Затемнение фона
-                    .edgesIgnoringSafeArea(.all)
-
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(2) // Увеличение индикатора
+                LoadingView(colors: [.purple, .indigo])
             }
 
             if showConfirmationView {
@@ -293,7 +290,7 @@ struct CreateMeditationView: View {
             ImportAudioManager(data: $audio, duration: $duration)
         }
         .sheet(isPresented: $isShowingPlayerPreview) {
-            PlayerView(
+            PlayerView2(
                 audio: $audio,
                 image: $image,
                 title: $title,
@@ -304,11 +301,6 @@ struct CreateMeditationView: View {
         }
     }
 }
-
-#Preview {
-    CreateMeditationView()
-}
-
 
 #Preview {
     CreateMeditationView()

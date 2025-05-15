@@ -10,7 +10,8 @@ import SwiftUI
 struct LiveStreamCreationView: View {
     @EnvironmentObject var viewModel: LiveStreamViewModel
     @Environment(\.dismiss) var dismiss
-    
+    @State private var isSaving = false
+
     enum FlowStep {
         case basicInfo, details, done
     }
@@ -84,14 +85,14 @@ struct LiveStreamCreationView: View {
                     }
                     
                     PrimaryButton(
-                        title: step == .basicInfo ? "Continue" : "Save",
-                        isActive: isPrimaryButtonActive
+                        title: step == .basicInfo ? "Continue" : (isSaving ? "Saving..." : "Save"),
+                        isActive: isPrimaryButtonActive && !isSaving
                     ) {
                         Task {
                             await handlePrimaryAction()
                         }
                     }
-                    .disabled(!isPrimaryButtonActive)
+                    .disabled(!isPrimaryButtonActive || isSaving)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, isKeyboardVisible ? 8 : 24)
@@ -132,6 +133,14 @@ struct LiveStreamCreationView: View {
             }
             
         case .details:
+            guard !isSaving else { return }
+            isSaving = true
+            
+            defer {
+                // Обнуляем флаг после выхода из функции
+                isSaving = false
+            }
+            
             if let existing = editingStream {
                 var updated = existing
                 updated.title = title

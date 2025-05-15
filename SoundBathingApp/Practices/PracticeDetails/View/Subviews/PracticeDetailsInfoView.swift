@@ -27,7 +27,11 @@ struct PracticeDetailsInfoView: View {
     @State private var isAudioLoading = false
     @State private var userRequestedPlay = false
     @State private var isUserAdmin = false
+    @State private var isLoadingPermissions = true
+
     let practice: Practice
+    @EnvironmentObject var vm: PlayerViewModel
+
     // MARK: - Computed Properties
     private var currentUserId: String {
         guard let userId = KeyChainManager.shared.getUserId() else {
@@ -65,7 +69,7 @@ struct PracticeDetailsInfoView: View {
                         Text("Frequency")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(.secondary)
-
+                        
                         HStack(spacing: 6) {
                             Image(systemName: "waveform.path.ecg")
                             Text("\(String(format: "%.1f", frequency)) Hz")
@@ -87,7 +91,7 @@ struct PracticeDetailsInfoView: View {
                     .lineSpacing(6)
                     .fixedSize(horizontal: false, vertical: true)
             }
-
+            
             /// Секция с отзывами
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
@@ -104,7 +108,7 @@ struct PracticeDetailsInfoView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    if !userHasFeedback && !isUserAdmin {
+                    if !isLoadingPermissions && !userHasFeedback && !isUserAdmin {
                         Button {
                             showingReviewForm = true
                         } label: {
@@ -160,58 +164,55 @@ struct PracticeDetailsInfoView: View {
                 }
             }
             .padding(.top, 10)
-        
+            
             /// Кнопка "Listen"
-            Button {
-                handleListenButtonTap()
-            } label: {
-                HStack {
-                    if isAudioLoading {
-                        ProgressView()
-                            .tint(.white)
-                    } else {
-                        Image(systemName: "play.fill") // Иконка кнопки
-                        Text("Start Listening")
-                            .font(.system(size: 18, weight: .semibold))
+            if vm.practiceId != practice.id {
+                Button {
+                    handleListenButtonTap()
+                } label: {
+                    HStack {
+                        if isAudioLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "play.fill") // Иконка кнопки
+                            Text("Start Listening")
+                                .font(.system(size: 18, weight: .semibold))
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .foregroundStyle(.white)
+                    .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .foregroundStyle(.white)
-                .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                .disabled(isAudioLoading)
+                .padding(.top, 20)
             }
-            .disabled(isAudioLoading)
-            .padding(.top, 20)
+            
+            Spacer()
+                .frame(height: 100) // Высота таб-бара + дополнительный отступ
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 30)
         .onAppear {
             startBackgroundAudioLoading()
             Task {
-                isUserAdmin = await isUserCanManagePractice()
+                async let loadAdminStatus = isUserCanManagePractice()
+                async let loadFeedbacks: () = feedbacksViewModel.getPracticeFeedBacks(practiceId: practice.id)
+                
+                // Параллельная загрузка
+                isUserAdmin = await loadAdminStatus
+                _ = await loadFeedbacks
+                
+                isLoadingPermissions = false
             }
         }
         .onDisappear {
             // Отменяем загрузку если пользователь ушел с экрана
             audioLoadTask?.cancel()
         }
-        .navigationDestination(
-            isPresented: $showPlayer,
-            destination: {
-                if let audio = audioData {
-                    PlayerView(
-                        showFullPlayer: true,
-                        audio: .constant(audio),
-                        image: .constant(practice.image),
-                        title: .constant(practice.title),
-                        therapeuticPurpose: .constant(practice.therapeuticPurpose),
-                        frequency: .constant(practice.frequency != nil ? String(format: "%.1f Hz", practice.frequency!) : ""),
-                        practiceId: .constant(practice.id)
-                )
-            }
-        })
         .sheet(isPresented: $showingReviewForm) {
             FeedbackCreationView(
                 practiceId: practice.id,
@@ -244,11 +245,6 @@ struct PracticeDetailsInfoView: View {
         } message: { _ in
             Text("Are you sure you want to delete this review?")
         }
-        .onAppear {
-            Task {
-                await feedbacksViewModel.getPracticeFeedBacks(practiceId: practice.id)
-            }
-        }
     }
     
     private func startBackgroundAudioLoading() {
@@ -263,6 +259,8 @@ struct PracticeDetailsInfoView: View {
                 
                 // Если пользователь нажал кнопку, переходим на PlayerView
                 if userRequestedPlay {
+                    vm.configure(with: practice, audio: audioData!)
+                    vm.resetAndPlayNewAudio()
                     showPlayer = true
                     userRequestedPlay = false
                 }
@@ -274,6 +272,8 @@ struct PracticeDetailsInfoView: View {
         if audioData != nil {
             // Аудио уже загружено - сразу открываем плеер
             showPlayer = true
+            vm.configure(with: practice, audio: audioData!)
+            vm.resetAndPlayNewAudio()
         } else {
             // Устанавливаем флаг, что пользователь хочет проиграть аудио
             userRequestedPlay = true
@@ -290,22 +290,3 @@ struct PracticeDetailsInfoView: View {
         await userPermissionsVM.CanCurrentUserManagePracticesAsync()
     }
 }
-
-
-//#Preview {
-//    PracticeDetailsInfoView(
-//        practice: Practice(
-//        id: "123",
-//        title: "Walking Meditation: Gratitude in Motion",
-//        description: "This post-drop-off walking meditation invites you to slow down and reconnect with gratitude as you walk. With each step, focus on your breath and the simple beauty of this moment — the privilege of guiding a young life and the calm that follows the morning rush. Let your senses ground you, your breath anchor you, and gratitude gently fill the space between each step.",
-//        meditationType: .daily,
-//        therapeuticPurpose: "for health",
-//        image: UIImage(systemName: "lock.document.fill")!,
-//        frequency: 3,
-//        feedbacks: [
-//            Feedback(id: "1", meditationId: "12", userName: "Irina", comment: "This meditation helped me reduce stress significantly after just a week of practice.", estimate: 5),
-//            Feedback(id: "2", meditationId: "12", userName: "Irina", comment: "This meditation helped me reduce stress significantly after just a week of practice.", estimate: 5),
-//            Feedback(id: "3", meditationId: "12", userName: "Irina", comment: "This meditation helped me reduce stress significantly after just a week of practice. This meditation helped me reduce stress significantly after just a week of practice", estimate: 5)],
-//        isFavorite: false)
-//    )
-//}

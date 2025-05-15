@@ -17,7 +17,8 @@ struct FeedbackCreationView: View {
     @State private var animateElements = false
     @State private var starPulse = false
     @State var shouldShowErrorToast: Bool = false
-    
+    @State private var isSubmitting = false
+
     @ObservedObject var viewModel: FeedbacksViewModel
     @Environment(\.dismiss) var dismiss
     
@@ -109,7 +110,7 @@ struct FeedbackCreationView: View {
                     if currentState != .completion {
                         PrimaryButton(
                             title: currentState == .rating ? "Continue" : "Submit",
-                            isActive: currentState == .comment || estimate > 0
+                            isActive: (currentState == .comment || estimate > 0) && !isSubmitting
                         ) {
                             handlePrimaryAction()
                         }
@@ -153,6 +154,9 @@ struct FeedbackCreationView: View {
     }
     
     private func submitFeedback() {
+        guard !isSubmitting else { return }
+        isSubmitting = true // блокируем повторный тап
+        
         guard let userId = KeyChainManager.shared.getUserId() else {
             viewModel.errorMessage = "Something went wrong. Please re-authorise in the app."
             return
@@ -191,6 +195,9 @@ struct FeedbackCreationView: View {
                     dismiss()
                 }
             }
+            
+            // Разрешаем повторное использование кнопки, если нужно
+            isSubmitting = false
         }
     }
     

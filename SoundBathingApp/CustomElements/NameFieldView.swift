@@ -26,3 +26,7 @@ struct NameFieldView: View {
         .padding()
     }
 }
+
+#Preview {
+    NameFieldView(name: .constant("Irina"), placeholderName: "Name")
+}

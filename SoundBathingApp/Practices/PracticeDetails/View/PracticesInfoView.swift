@@ -12,6 +12,10 @@ struct PracticesInfoView: View {
     @StateObject var getPracticesViewModel: GetPracticesViewModel
 
     let practice: Practice
+    
+    var practiceToUpdate: Practice? {
+        getPracticesViewModel.practices.first(where: { $0.id == practice.id })
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -62,13 +66,15 @@ struct PracticesInfoView: View {
                                 }
                                 
                             } label: {
-                                Image(systemName: practice.isFavorite ? "heart.fill" : "heart")
-                                    .font(.system(size: 24))
-                                    .foregroundColor(practice.isFavorite ? .red : .white)
-                                    .padding(10)
-                                    .background(Circle().fill(Color.black.opacity(0.3)))
-                                    .scaleEffect(animateHeart ? 1.5 : 1.0)
-                                    .opacity(animateHeart ? 0.8 : 1.0)
+                                if let practice = practiceToUpdate {
+                                    Image(systemName: practice.isFavorite ? "heart.fill" : "heart")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(practice.isFavorite ? .red : .white)
+                                        .padding(10)
+                                        .background(Circle().fill(Color.black.opacity(0.3)))
+                                        .scaleEffect(animateHeart ? 1.5 : 1.0)
+                                        .opacity(animateHeart ? 0.8 : 1.0)
+                                }
                             }
                         }
                         

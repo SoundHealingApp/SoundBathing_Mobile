@@ -31,6 +31,9 @@ struct PersonalInformationView: View {
                 
                 // Save Button
                 saveButton
+                
+                Spacer()
+                    .frame(height: 100) // Высота таб-бара + дополнительный отступ
             }
             .padding(.horizontal)
         }

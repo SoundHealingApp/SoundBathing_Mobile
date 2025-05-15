@@ -60,7 +60,6 @@ public class FeedbacksViewModel : ObservableObject {
             comment: feedback.comment,
             estimate: feedback.estimate
         )
-        feedbacks.append(newFeedback)
         
         let endPoint = "\(EndPoints.AddPracticeFeedback)/\(practiceId)/feedback"
         
@@ -75,6 +74,7 @@ public class FeedbacksViewModel : ObservableObject {
         switch result {
         case .success:
             self.errorMessage = nil
+            feedbacks.append(newFeedback)
         case .failure(let error):
             print(error)
             switch error {

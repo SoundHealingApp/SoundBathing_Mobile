@@ -16,7 +16,8 @@ struct LiveStreamDetailView: View {
     @State private var showReminderAdded = false
     @State private var showShareSheet = false
     @State private var showReminderError = false
-    
+    @Environment(\.openURL) var openURL
+
     private let eventStore = EKEventStore()
     
     var body: some View {
@@ -212,9 +213,9 @@ struct LiveStreamDetailView: View {
         
         return parts.isEmpty ? "Starting soon" : parts.joined(separator: " ")
     }
-    
+
     private func addReminder() {
-        eventStore.requestAccess(to: .event) { granted, error in
+        eventStore.requestFullAccessToEvents { granted, error in
             DispatchQueue.main.async {
                 if granted, error == nil {
                     let event = EKEvent(eventStore: eventStore)
@@ -223,7 +224,7 @@ struct LiveStreamDetailView: View {
                     event.endDate = stream.startDateTime.addingTimeInterval(3600)
                     event.notes = stream.description
                     event.calendar = eventStore.defaultCalendarForNewEvents
-                    
+
                     do {
                         try eventStore.save(event, span: .thisEvent)
                         withAnimation {
@@ -235,24 +236,64 @@ struct LiveStreamDetailView: View {
                             }
                         }
                     } catch {
-                        showReminderError = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            withAnimation {
-                                showReminderError = false
-                            }
-                        }
+                        handleReminderError()
                     }
                 } else {
-                    showReminderError = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation {
-                            showReminderError = false
-                        }
-                    }
+                    handleReminderError()
                 }
             }
         }
     }
+
+    private func handleReminderError() {
+        showReminderError = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                showReminderError = false
+            }
+        }
+    }
+
+//    private func addReminder() {
+//        eventStore.requestAccess(to: .event) { granted, error in
+//            DispatchQueue.main.async {
+//                if granted, error == nil {
+//                    let event = EKEvent(eventStore: eventStore)
+//                    event.title = stream.title
+//                    event.startDate = stream.startDateTime
+//                    event.endDate = stream.startDateTime.addingTimeInterval(3600)
+//                    event.notes = stream.description
+//                    event.calendar = eventStore.defaultCalendarForNewEvents
+//                    
+//                    do {
+//                        try eventStore.save(event, span: .thisEvent)
+//                        withAnimation {
+//                            showReminderAdded = true
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                                withAnimation {
+//                                    showReminderAdded = false
+//                                }
+//                            }
+//                        }
+//                    } catch {
+//                        showReminderError = true
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                            withAnimation {
+//                                showReminderError = false
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    showReminderError = true
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                        withAnimation {
+//                            showReminderError = false
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 // Helper Views (same as before)

@@ -9,24 +9,24 @@ import SwiftUI
 
 
 extension View {
-    func registrationTFCustomStyle() -> some View {
-        modifier(RegistrationTFViewModifier())
-    }
+//    func registrationTFCustomStyle() -> some View {
+//        modifier(RegistrationTFViewModifier())
+//    }
     
     func firstPasswordTFCustomStyle(password: Binding<String>, repeatedPassword: Binding<String>, isFirstPasswordValid: Binding<Bool>, isRepeatedPasswordValid: Binding<Bool>) -> some View {
         modifier(FirstPasswordTFViewModifier(password: password, repeatedPassword: repeatedPassword, isFirstPasswordValid: isFirstPasswordValid, isRepeatedPasswordValid: isRepeatedPasswordValid))
     }
 }
 
-struct RegistrationTFViewModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding()
-            .frame(width: 352, height: 63)
-            .font(.custom("OpenSans-Light", size: 18))
-            .foregroundStyle(Color.blackAdaptive)
-    }
-}
+//struct RegistrationTFViewModifier: ViewModifier {
+//    func body(content: Content) -> some View {
+//        content
+//            .padding()
+//            .frame(width: 352, height: 63)
+//            .font(.custom("OpenSans-Light", size: 18))
+//            .foregroundStyle(Color.blackAdaptive)
+//    }
+//}
 
 
 private struct FirstPasswordTFViewModifier: ViewModifier {
@@ -52,12 +52,15 @@ private struct FirstPasswordTFViewModifier: ViewModifier {
                     isRepeatedPasswordValid = Validator.isPasswordCorrect(password: repeatedPassword)
                 }
             }
+        
             if !isFirstPasswordValid {
                 HStack {
                     Spacer()
-                    Text(((!repeatedPassword.isEmpty) && (password != repeatedPassword)) ? "The passwords don't match" : "Password must be 6-20 chars with a number, uppercase and lowercase and at least one special character")
-                        .font(.custom("OpenSans-Light", size: 16))
-                        .foregroundStyle(.red)
+                    Text(((!repeatedPassword.isEmpty) && (password != repeatedPassword)) ? "The passwords don't match" : !Validator.isPasswordCorrect(password: password) ? "Use 6-20 chars with mix of letters, numbers & symbols" : "")
+                        .font(.footnote)
+                        .foregroundColor(.red)
+//                        .font(.custom("OpenSans-Light", size: 16))
+//                        .foregroundStyle(.red)
                         .padding(.trailing)
                 }
                 .frame(width: 352)

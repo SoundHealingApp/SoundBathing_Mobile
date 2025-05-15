@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JWTDecode
+import AVFAudio
 
 @main
 struct SoundBathingAppApp: App {
@@ -15,14 +16,19 @@ struct SoundBathingAppApp: App {
     @StateObject private var userPermissionsViewModel = UserPermissionsViewModel()
     @StateObject private var liveStreamViewModel = LiveStreamViewModel()
     @StateObject private var signInViewModel = SignInViewModel()
+    @StateObject private var networkMonitor = NetworkMonitor()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.light)
                 .environmentObject(appViewModel)
                 .environmentObject(practicesVM)
                 .environmentObject(userPermissionsViewModel)
                 .environmentObject(liveStreamViewModel)
                 .environmentObject(signInViewModel)
+                .environmentObject(PlayerViewModel.shared)
+                .environmentObject(networkMonitor)
                 .onAppear {
                     appViewModel.setupBackgroundTasks()
                     
@@ -38,33 +44,50 @@ struct SoundBathingAppApp: App {
 struct ContentView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var practicesVM: GetPracticesViewModel
+    @EnvironmentObject var audioPlayer: PlayerViewModel
+    @EnvironmentObject var networkMonitor: NetworkMonitor
 
+    @State private var showAlert = false
+    
     var body: some View {
-        Group {
-            NavigationStack(path: $appViewModel.navigationPath) {
-                WelcomeQuoteView()
-                    .navigationDestination(for: AppRoute.self) { route in
-                        switch route {
-                        case .onboarding:
-                            OnboardingView()
-                        case .register:
-                            RegisterView()
-                        case .survey:
-                            MeditationSurveyView()
-                        case .signIn:
-                            SignInView()
-                        case .nameEntering:
-                            NameEnteringView()
-                        case .birthEntering:
-                            BirthdateEnteringView()
-                        case .main:
-                            MainView()
+        ZStack(alignment: .bottom) {
+            if appViewModel.currentRoute == .main {
+                MainView()
+            } else {
+                NavigationStack(path: $appViewModel.navigationPath) {
+                    WelcomeQuoteView()
+                        .navigationDestination(for: AppRoute.self) { route in
+                            switch route {
+                            case .onboarding:
+                                OnboardingView()
+                            case .register:
+                                RegisterView()
+                            case .survey:
+                                MeditationSurveyView()
+                            case .signIn:
+                                SignInView()
+                            case .nameEntering:
+                                NameEnteringView()
+                            case .birthEntering:
+                                BirthdateEnteringView()
+                            case .main:
+                                EmptyView()
+                            }
                         }
-                    }
+                }
             }
+        }
+        .onChange(of: networkMonitor.isConnected) { _, connected in
+            if !connected {
+                showAlert = true
+            }
+        }
+        .alert("No internet connection", isPresented: $showAlert) {
+            Button("ОК", role: .cancel) { }
         }
     }
 }
+
 
 enum AppRoute: Hashable {
     case onboarding
@@ -76,12 +99,15 @@ enum AppRoute: Hashable {
     case main
 }
 
+    
 @MainActor
 class AppViewModel: ObservableObject {
     @Published var navigationPath = NavigationPath()
     @Published var showOnboarding = !UserDefaults.standard.bool(forKey: "completedOnboarding")
-    @Published var showWelcomeQuote = true // Новое состояние для цитаты
-    
+    @Published var showWelcomeQuote = true
+    @Published var currentRoute: AppRoute? = nil
+    @Published var selectedTab: MainTapBar = .allPractices
+
     private let surveyInterval: TimeInterval = 5 * 3600 // 5 часов в секундах
     
     init() {
@@ -180,6 +206,13 @@ class AppViewModel: ObservableObject {
     
     /// Установка фоновых задач.
     func setupBackgroundTasks() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set audio session: \(error)")
+        }
+
         setupDailyMeditationReminder()
     }
     
@@ -263,8 +296,16 @@ class AppViewModel: ObservableObject {
     }
     
     func navigate(to route: AppRoute) {
-        navigationPath.append(route)
+        if route == .main {
+            // Полностью выходим из NavigationStack
+            navigationPath.removeLast(navigationPath.count)
+            currentRoute = .main
+        } else {
+            currentRoute = route
+            navigationPath.append(route)
+        }
     }
+
     
     func signOut() {
         clearAllUserData()
@@ -293,7 +334,6 @@ class AppViewModel: ObservableObject {
         
         // Очищаем Keychain
         KeyChainManager.shared.deleteToken()
-//        KeyChainManager.shared.deleteUserId()
         KeyChainManager.shared.deletePasswordHash()
 
     }
@@ -302,7 +342,6 @@ class AppViewModel: ObservableObject {
         // Сбрасываем все флаги состояния
         showOnboarding = true
         showWelcomeQuote = true
-//        navigationPath = NavigationPath()
         
         // Отменяем все уведомления
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()

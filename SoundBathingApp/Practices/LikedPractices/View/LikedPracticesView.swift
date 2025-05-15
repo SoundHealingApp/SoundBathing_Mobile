@@ -21,6 +21,8 @@ struct LikedPracticesView: View {
         ScrollView(.vertical, showsIndicators: false) {
             if viewModel.practices.filter({ $0.isFavorite }).isEmpty {
                 VStack(spacing: 24) {
+                    Spacer()
+
                     Image(systemName: "heart.slash.fill")
                         .resizable()
                         .scaledToFit()
@@ -45,7 +47,7 @@ struct LikedPracticesView: View {
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             isButtonPressed.toggle()
-                            appViewModel.navigate(to: .main)
+                            appViewModel.selectedTab = .allPractices
                         }
                     }) {
                         Text("Explore Practices")
@@ -65,6 +67,8 @@ struct LikedPracticesView: View {
                             animateGlow.toggle()
                         }
                     }
+                    
+                    Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()

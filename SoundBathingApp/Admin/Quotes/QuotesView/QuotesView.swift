@@ -114,6 +114,9 @@ struct QuotesView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     .padding(.bottom, 40)
+                    
+                    Spacer()
+                        .frame(height: 100) // Высота таб-бара + дополнительный отступ
                 }
                 .coordinateSpace(name: "scroll")
                 .onPreferenceChange(ScrollOffsetKey.self) { value in

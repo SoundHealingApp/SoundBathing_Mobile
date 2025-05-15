@@ -57,13 +57,16 @@ class GetPracticesViewModel: ObservableObject {
     /// Переключение лайка
     func toggleLike(practiceId: String) async {
         if let index = practices.firstIndex(where: { $0.id == practiceId }) {
+            DispatchQueue.main.async {
+                self.practices[index].isFavorite.toggle()
+            }
+
             if !practices[index].isFavorite {
                 await likePractice(practiceId: practiceId)
             } else {
                 await unlikePractice(practiceId: practiceId)
             }
             print(practices[index].isFavorite)
-            practices[index].isFavorite.toggle()
         }
     }
     
@@ -82,9 +85,6 @@ class GetPracticesViewModel: ObservableObject {
     // Основной метод для пакетной загрузки аудио
     func loadRecommendedPracticesAudio() async {
         guard !recommendedPracticesIdsSet.isEmpty else { return }
-        
-//        isLoadingAudio = true
-//        defer { isLoadingAudio = false }
         
         await withTaskGroup(of: Void.self) { group in
             for practiceId in recommendedPracticesIdsSet {

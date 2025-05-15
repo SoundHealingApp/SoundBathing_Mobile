@@ -27,7 +27,9 @@ class SignInViewModel: ObservableObject {
         let hashedPassword = AuthHelper.hashPassword(password)
 
         await signInAsync(email: email, hashedPassword: hashedPassword)
-        await getUserData(id: userId)
+        if errorMessage == nil {
+            await getUserData(id: userId)
+        }
     }
     
     private func deleteUser(id: String) async {

@@ -193,7 +193,6 @@ class LiveStreamViewModel: ObservableObject {
     
     // MARK: - Private methods
     private func createLiveStreamsModels(liveStreamsDtos: [LiveStreamResponseDto]) {
-        liveStreams.removeAll()
         for liveStreamsDto in liveStreamsDtos {
             guard !liveStreams.contains(where: { $0.id == liveStreamsDto.id }) else {
                 continue
