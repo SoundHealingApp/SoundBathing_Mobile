@@ -194,7 +194,7 @@ class LiveStreamViewModel: ObservableObject {
     // MARK: - Private methods
     private func createLiveStreamsModels(liveStreamsDtos: [LiveStreamResponseDto]) {
         for liveStreamsDto in liveStreamsDtos {
-            guard !liveStreams.contains(where: { $0.id == liveStreamsDto.id }) else {
+            guard !liveStreams.contains(where: { $0.youTubeUrl == liveStreamsDto.youTubeUrl }) else {
                 continue
             }
             
